@@ -1,0 +1,15 @@
+{
+  "domain": "dev-shared-tasks-app-rimple.auth.us-east-1.amazoncognito.com",
+  "scope": [
+    "phone",
+    "email",
+    "profile",
+    "openid",
+    "aws.cognito.signin.user.admin"
+  ],
+  "Auth": {
+    "redirectSignIn": "http://localhost:3000/oauth2/idpresponse",
+    "redirectSignOut": "http://localhost:3000/signedout",
+    "responseType": "cookie"
+  }
+}

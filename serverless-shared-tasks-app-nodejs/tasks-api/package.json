@@ -1,0 +1,17 @@
+{
+  "name": "serverless-shared-tasks-app-nodejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/joi": "^17.1.1",
+    "aws-sdk": "^2.656.0",
+    "uuid": "^7.0.3"
+  }
+}

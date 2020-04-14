@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: IAM Cognito and DynamoDB resources for shared-tasks-sam
+Resources:
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    UpdateReplacePolicy: Retain
+    Properties:
+      UserPoolName: !Sub "${AWS::StackName}-SharedTasksUserPool"
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      Schema:
+        -
+          Name: email
+          Required: true
+          Mutable: true
+      UsernameAttributes: [ "email" ]
+      AutoVerifiedAttributes: [ "email" ]
+
+  CognitoUserPoolWebClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub "${AWS::StackName}-web-client"
+      CallbackURLs: [ "http://localhost:3000/oauth2/idpresponse" ]
+      LogoutURLs: [ "http://localhost:3000/signedout" ]
+      SupportedIdentityProviders: [ "COGNITO" ]
+      GenerateSecret: false
+      UserPoolId:
+        Ref: CognitoUserPool
+      ExplicitAuthFlows: [ "ALLOW_REFRESH_TOKEN_AUTH", "ALLOW_USER_PASSWORD_AUTH" ]
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows: [ "implicit", "code" ]
+      AllowedOAuthScopes: [ "email", "openid" ]
+
+  SharedTasksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+      - AttributeName: taskOwner
+        AttributeType: S
+      - AttributeName: taskId
+        AttributeType: S
+      KeySchema:
+      - AttributeName: taskOwner
+        KeyType: HASH
+      - AttributeName: taskId
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 4
+        WriteCapacityUnits: 4
+      TableName: !Sub "${AWS::StackName}-AssignableTaskList"
+
+# Note the "Export" properties here
+# This allows us to have multiple external stacks reference our
+# output by its stack-prefixed name in the same region. We're
+# using it in the Serverless Framework's cross-stack-references...
+# See https://serverless-stack.com/chapters/cross-stack-references-in-serverless.html
+Outputs:
+  UserPoolArn:
+    Value:
+      !GetAtt CognitoUserPool.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-UserPoolArn"
+
+  SharedTasksTableName:
+    Value:
+      Ref: SharedTasksTable
+    Export:
+      Name: !Sub "${AWS::StackName}-SharedTasksTableName"
+
+  # for DynamoDB Tables, the ref is the table name
+  # So we use Arn instead
+  SharedTasksTableArn:
+    Value:
+      !GetAtt SharedTasksTable.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-SharedTasksTableArn"
+
+  WebClient:
+    Value:
+      Ref: CognitoUserPoolWebClient

@@ -1,0 +1,2 @@
+#!/bin/sh
+AWS_PAGER='' aws cloudformation describe-stacks --stack-name $1 --query "Stacks[].Outputs[]" --output text 

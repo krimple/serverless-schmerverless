@@ -1,0 +1,12 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "tasks-nodejs-app"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1fpn81nh6br68"
+s3_prefix = "tasks-nodejs-app"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "UserPoolArn=\"\" SharedTasksTableName=\"\" SharedTasksTableArn=\"\" StageName=\"dev\""
+

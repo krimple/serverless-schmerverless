@@ -1,0 +1,6 @@
+aws-env/
+.DS_Store
+.idea/
+.vscode/
+venv/
+

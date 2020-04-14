@@ -1,0 +1,130 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam-shared-tasks-app-nodejs
+
+Parameters:
+  UserPoolArn:
+    Type: String
+  SharedTasksTableName:
+    Type: String
+  SharedTasksTableArn:
+    Type: String
+  StageName:
+    Type: String
+    Default: dev
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    MemorySize: 128
+    Timeout: 15
+
+Resources:
+  AddTaskFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      # CodeUri: tasks-api/
+      Role: !GetAtt LambdaDynamoAccessRole.Arn
+      Handler: tasks-api/add-task.handler
+      Runtime: nodejs12.x
+      Events:
+        AddTaskEvent:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            RestApiId: !Ref TaskManagerApi
+            Path: /tasks
+            Method: post
+      Environment:
+        Variables:
+          SHARED_TASKS_TABLE_NAME:  !Ref SharedTasksTableName
+
+  ListTasksFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      # CodeUri: tasks-api/
+      Role: !GetAtt LambdaDynamoAccessRole.Arn
+      Handler: tasks-api/list-tasks.handler
+      Runtime: nodejs12.x
+      Events:
+        ListTasksEvent:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            RestApiId: !Ref TaskManagerApi
+            Path: /tasks
+            Method: get
+      Environment:
+        Variables:
+          SHARED_TASKS_TABLE_NAME:  !Ref SharedTasksTableName
+
+  # Our API Gateway = normally created in the background, automagically
+  # but we will define settings here to override the defaults...
+  # Set this up to define the Cognito integration authorizer
+  # and also to provide CORS header support for our API endpoints
+  TaskManagerApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref StageName
+      Cors:
+        AllowMethods: "'GET,PUT,POST,DELETE,OPTIONS'"
+        AllowHeaders: "'X-Forwarded-For,Content-Type,Authorization'"
+        AllowOrigin: "'http://localhost:3000'"
+        MaxAge: 600
+      Auth:
+        DefaultAuthorizer: Authorizer
+        Authorizers:
+          Authorizer:
+            UserPoolArn: !Ref UserPoolArn
+        # Because we have CORS enabled, we need to disable the authorizer on the API Gateway
+        # for the preflight request. GAH. Outlined in a response to an issue (I literally found
+        # this little feature listed as recommended to combat one type of authorization error).
+        # I now have a new acronym - RTFI (Read the @#$@ Internet) for this type of research.
+        # See https://github.com/awslabs/serverless-application-model/issues/717#issuecomment-523043093
+        AddDefaultAuthorizerToCorsPreflight: False
+
+  # This Lambda role is in addition to the built-in IAM role for the application
+  # It allows the function execute access from Cognito users, and to access the Dynamo table
+  LambdaDynamoAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version:                        "2012-10-17"
+        Statement:
+          Effect:                       "Allow"
+          Principal:
+            Service:                    "lambda.amazonaws.com"
+          Action:                       "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
+
+  # We could also have embedded this policy in the role itself
+  TaskManagerTableAccessPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      Roles: [ !Ref LambdaDynamoAccessRole ]
+      PolicyName: TaskTableDynamoPolicy
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:BatchGet*
+              - dynamodb:Get*
+              - dynamodb:Query
+              - dynamodb:Scan
+              - dynamodb:BatchWrite*
+              - dynamodb:CreateTable
+              - dynamodb:Delete*
+              - dynamodb:Update*
+              - dynamodb:PutItem
+            Resource:
+              - !Ref SharedTasksTableArn
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  TaskManagerApi:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${TaskManagerApi}.execute-api.${AWS::Region}.amazonaws.com/${AWS::StackName}/tasks/"
