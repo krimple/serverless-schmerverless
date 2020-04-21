@@ -18,51 +18,22 @@ const TaskCreator = ({api}) => {
     return (
         <>
             <NewTaskForm />
-          <div>
-            { bearerToken &&
-                <>
-                    <button onClick={async () => {
-                        API.post('taskManagerSam', '/tasks', {
-                            headers: { Authorization: bearerToken},
-                            body: {
-                                task: "get things done",
-                                priority: 3,
-                                dueDate: new Date().toISOString()
-                            }
-                        })
-                    }}>Create a task SAM!</button>
-                </>
-            }
-          </div>
-          <div>
-                { bearerToken &&
-                <>
-                    <button onClick={async () => {
-                        API.post('taskManagerServerless', '/tasks', {
-                            headers: { Authorization: bearerToken },
-                            body: {
-                                task: "get things done",
-                                priority: 3,
-                                dueDate: new Date().toISOString()
-                            }
-                        })
-                    }}>Create a task Serverless!</button>
-                </>
-                }
-          </div>
-            <div>
+           <div>
                 { bearerToken &&
                 <>
                     <button onClick={async () => {
                         API.post('taskManagerNodeServerless', '/tasks', {
                             headers: { Authorization: bearerToken },
                             body: {
-                                task: "get things done",
-                                priority: 3,
-                                dueDate: new Date().toISOString()
+                                task: {
+                                    taskOwner: "Ken Rimple",
+                                    description: "get things done",
+                                    priority: 3,
+                                    dueDate: new Date().toISOString()
+                                }
                             }
                         })
-                    }}>Create a task Serverless Node!</button>
+                    }}>Create a new task via Serverless Node!</button>
                 </>
                 }
             </div>
@@ -74,12 +45,14 @@ const TaskCreator = ({api}) => {
                         API.post('taskManagerNodeSam', '/tasks', {
                             headers: { Authorization: bearerToken },
                             body: {
-                                task: "get things done",
-                                priority: 3,
-                                dueDate: new Date().toISOString()
+                                task: {
+                                    description: "get things done",
+                                    priority: 3,
+                                    dueDate: new Date().toISOString()
+                                }
                             }
                         })
-                    }}>Create a task SAM (NodeJS)!</button>
+                    }}>Create a task via AWS SAM (NodeJS)!</button>
                 </>
                 }
             </div>
@@ -88,3 +61,4 @@ const TaskCreator = ({api}) => {
 }
 
 export default TaskCreator;
+

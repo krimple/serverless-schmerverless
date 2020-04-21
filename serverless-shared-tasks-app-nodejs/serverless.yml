@@ -32,11 +32,21 @@ provider:
         - dynamodb:PutItem
       Resource:
         - ${self:provider.environment.SHARED_TASKS_TABLE_ARN}
+    - Effect: "Allow"
+      Action:
+        - "xray:PutTraceSegments"
+        - "xray:PutTelemetryRecords"
+      Resource:
+        - "*"
+
+  plugins:
+    - serverless-plugin-tracing
 
 functions:
   addTask:
     handler: tasks-api/add-task.handler
     memory: 256
+    tracing: true
     events:
       - http:
           method: POST
@@ -51,6 +61,7 @@ functions:
   listTasks:
     handler: tasks-api/list-tasks.handler
     memory: 512
+    tracing: true
     events:
       - http:
           method: GET
@@ -86,3 +97,7 @@ package:
   include:
     - tasks-api/**
     - node_modules/uuid/**
+
+plugins:
+  - serverless-plugin-tracing
+  - serverless-offline

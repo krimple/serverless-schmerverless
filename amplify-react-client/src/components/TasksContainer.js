@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getTasks } from '../tasks-api';
 import NewTaskForm from "./NewTaskForm";
 import { Appbar, Container, Row, Column, Divider } from 'muicss/react';
+
 const TasksContainer = ({api}) => {
     async function loadTasks() {
         try {
@@ -33,7 +34,6 @@ const TasksContainer = ({api}) => {
     )) : [];
 
     return (
-
         <Row>
            { tasks &&
                <div>

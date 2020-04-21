@@ -42,7 +42,6 @@ function App() {
         <Appbar><h1>The AMAZING Serverless Client (sarcasm provided)</h1></Appbar>
         <Container>
             <TasksContainer />
-            <TaskCreator />
         </Container>
     </div>
   );

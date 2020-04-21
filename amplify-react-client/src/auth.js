@@ -8,5 +8,6 @@ Auth.configure(awsconfig);
 API.configure(awsconfig);
 
 export const getBearerToken = async () => `Bearer ${(await Auth.currentSession()).getIdToken().getJwtToken()}`;
+export const getUser = async () => await Auth.currentAuthenticatedUser();
 
 export { Amplify, Auth, API };
