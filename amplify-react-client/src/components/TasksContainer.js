@@ -1,72 +1,60 @@
-import React, { Component, useState, useEffect } from 'react';
-import { API, Auth, getBearerToken } from '../auth';
-const TasksContainer = ({api}) => {
-    const [bearerToken, setBearerToken] = useState(null);
-    const [tasks, setTasks] = useState([]);
-    useEffect(() => {
-        async function getToken() {
-            try {
-              const token = await getBearerToken();
-              setBearerToken(token);
-            } catch (e) {
-              setBearerToken(null);
-            }
-        }
-        getToken();
-    });
+import React, { useState, useEffect } from 'react';
+import { getTasks } from '../tasks-api';
+import NewTaskForm from "./NewTaskForm";
 
-    const taskTRs = tasks.map(t => (
+const TasksContainer = ({api}) => {
+    async function loadTasks() {
+        try {
+            const tasks = await getTasks('taskManagerNodeServerless');
+            setTasks(tasks);
+        } catch (e) {
+            console.error(e);
+            alert('fetch of tasks failed');
+        }
+    }
+    const [tasks, setTasks] = useState([]);
+
+    useEffect(() => {
+        (async () => {
+            await loadTasks();
+        })();
+    }, []);
+
+    const taskTRs = tasks ? tasks.map(t => (
         <tr>
             <td>{ t['taskId']['S'] }</td>
+            <td>{ t['taskOwner']['S']}</td>
             <td>{ t['description']['S']}</td>
             <td>{ t['priority']['N']}</td>
             <td>{ t['dueDate']['S']}</td>
             <td>{ t['completed']['BOOL']}</td>
         </tr>
 
-    ));
+    )) : [];
 
     return (
         <>
-           <div>
-               <h3>Load Tasks</h3>
-                <button className="mui-btn mui-btn--primary" onClick={ () => {
-                    async function loadTasks() {
-                        const loadedTasks = await API.get('taskManagerNodeServerless', '/tasks', {
-                            headers: { Authorization: bearerToken }
-                        });
-                        console.dir(loadedTasks);
-                        setTasks(loadedTasks.tasks);
-                    }
-                    loadTasks();
-                }}>Serverless</button>
-                <button className="mui-btn mui-btn--primary" onClick={ () => {
-                    async function loadTasks() {
-                        const loadedTasks = await API.get('taskManagerNodeSam', '/tasks', {
-                            headers: { Authorization: bearerToken }
-                        });
-                        console.dir(loadedTasks);
-                        setTasks(loadedTasks);
-                    }
-                    loadTasks();
-                }}>AWS SAM</button>
-                <button className="mui-btn mui-btn--primary" onClick={ () => {
-                    async function loadTasks() {
-                        const loadedTasks = await API.get('taskManagerArchitect', '/tasks', {
-                            headers: { Authorization: bearerToken }
-                        });
-                        console.dir(loadedTasks);
-                        setTasks(loadedTasks);
-                    }
-                    loadTasks();
-                }}>Architect (different data model)...</button>
-            </div>
+               {/*
+                   <button className="mui-btn mui-btn--primary" onClick={() => {
+                       async function loadTasks() {
+                           const loadedTasks = await API.get('taskManagerArchitect', '/tasks', {
+                               headers: {Authorization: bearerToken}
+                           });
+                           console.dir(loadedTasks);
+                           setTasks(loadedTasks);
+                       }
+
+                       loadTasks();
+                   }}>Architect (different data model)...</button>
+               */}
 
            { tasks &&
+               <div>
                <table className="mui-table">
                    <thead>
                      <tr>
                          <th>ID</th>
+                         <th>Owner</th>
                          <th>Description</th>
                          <th>Priority</th>
                          <th>Due Date</th>
@@ -77,8 +65,15 @@ const TasksContainer = ({api}) => {
                      { taskTRs }
                    </tbody>
                </table>
-
+               </div>
            }
+           <div>
+               <NewTaskForm onCreateComplete={
+                   () => {
+                       loadTasks();
+                   }
+               } />
+           </div>
         </>
     )
 }

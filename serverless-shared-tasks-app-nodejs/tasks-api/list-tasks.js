@@ -26,7 +26,7 @@ exports.handler = async (event, context) => {
     try {
         const params = {
             ExpressionAttributeValues: {
-                ':o': {S: 'KenRimple'}
+                ':o': {S: event.queryStringParameters.taskOwner}
             },
             TableName: TASKS_TABLE_NAME,
             KeyConditionExpression: 'taskOwner = :o',
