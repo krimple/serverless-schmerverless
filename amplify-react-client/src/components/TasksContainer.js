@@ -1,85 +1,83 @@
-import React, { Component, useState, useEffect } from 'react';
-import { API, Auth, getBearerToken } from '../auth';
+import React, { useState, useEffect } from 'react';
+import { getTasks } from '../tasks-api';
+import NewTaskForm from "./NewTaskForm";
+import { Appbar, Container, Row, Column, Divider } from 'muicss/react';
 const TasksContainer = ({api}) => {
-    const [bearerToken, setBearerToken] = useState(null);
-    const [tasks, setTasks] = useState([]);
-    useEffect(() => {
-        async function getToken() {
-            try {
-              const token = await getBearerToken();
-              setBearerToken(token);
-            } catch (e) {
-              setBearerToken(null);
-            }
+    async function loadTasks() {
+        try {
+            const tasks = await getTasks('taskManagerNodeServerless');
+            setTasks(tasks);
+        } catch (e) {
+            console.error(e);
+            alert('fetch of tasks failed');
         }
-        getToken();
-    });
+    }
+    const [tasks, setTasks] = useState([]);
+
+    useEffect(() => {
+        (async () => {
+            await loadTasks();
+        })();
+    }, []);
+
+    const taskTRs = tasks ? tasks.map(t => (
+        <tr>
+            <td>{ t['taskId']['S'] }</td>
+            <td>{ t['taskOwner']['S']}</td>
+            <td>{ t['description']['S']}</td>
+            <td>{ t['priority']['N']}</td>
+            <td>{ t['dueDate']['S']}</td>
+            <td>{ t['completed']['BOOL']}</td>
+        </tr>
+
+    )) : [];
 
     return (
-        <>
-            <div>
-              <button onClick={ () => {
-                  async function loadTasks() {
-                    const loadedTasks = await API.get('taskManagerSam', '/tasks', {
-                        headers: { Authorization: bearerToken }
-                    });
-                    console.dir(loadedTasks);
-                    setTasks(loadedTasks);
-                  }
-                  loadTasks();
-              }}>Load tasks SAM...</button>
-            </div>
-            <div>
-                <button onClick={ () => {
-                    async function loadTasks() {
-                        const loadedTasks = await API.get('taskManagerServerless', '/tasks', {
-                            headers: { Authorization: bearerToken }
-                        });
-                        console.dir(loadedTasks);
-                        setTasks(loadedTasks);
-                    }
-                    loadTasks();
-                }}>Load tasks Serverless...</button>
-            </div>
-            <div>
-                <button onClick={ () => {
-                    async function loadTasks() {
-                        const loadedTasks = await API.get('taskManagerNodeServerless', '/tasks', {
-                            headers: { Authorization: bearerToken }
-                        });
-                        console.dir(loadedTasks);
-                        setTasks(loadedTasks);
-                    }
-                    loadTasks();
-                }}>Load tasks Serverless NodeJS...</button>
-            </div>
-            <div>
-                <button onClick={ () => {
-                    async function loadTasks() {
-                        const loadedTasks = await API.get('taskManagerArchitect', '/tasks', {
-                            headers: { Authorization: bearerToken }
-                        });
-                        console.dir(loadedTasks);
-                        setTasks(loadedTasks);
-                    }
-                    loadTasks();
-                }}>Load tasks Architect (different data model)...</button>
-            </div>
-            <div>
-                <button onClick={ () => {
-                    async function loadTasks() {
-                        const loadedTasks = await API.get('taskManagerNodeSam', '/tasks', {
-                            headers: { Authorization: bearerToken }
-                        });
-                        console.dir(loadedTasks);
-                        setTasks(loadedTasks);
-                    }
-                    loadTasks();
-                }}>Load tasks NodeJS SAM</button>
-            </div>
-            { tasks && (<pre>{JSON.stringify(tasks, undefined, 2)}</pre>) }
-        </>
+
+        <Row>
+           { tasks &&
+               <div>
+               <table className="mui-table">
+                   <thead>
+                     <tr>
+                         <th>ID</th>
+                         <th>Owner</th>
+                         <th>Description</th>
+                         <th>Priority</th>
+                         <th>Due Date</th>
+                         <th>Complete</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     { taskTRs }
+                   </tbody>
+               </table>
+               </div>
+           }
+           <div>
+               <NewTaskForm onCreateComplete={
+                   () => {
+                       loadTasks();
+                   }
+               } />
+           </div>
+        </Row>
     )
 }
 
 export default TasksContainer;
+
+
+/*
+                   <button className="mui-btn mui-btn--primary" onClick={() => {
+                       async function loadTasks() {
+                           const loadedTasks = await API.get('taskManagerArchitect', '/tasks', {
+                               headers: {Authorization: bearerToken}
+                           });
+                           console.dir(loadedTasks);
+                           setTasks(loadedTasks);
+                       }
+
+                       loadTasks();
+                   }}>Architect (different data model)...</button>
+ */

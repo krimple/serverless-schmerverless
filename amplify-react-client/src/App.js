@@ -3,9 +3,8 @@ import '@aws-amplify/ui/dist/style.css';
 import { withAuthenticator } from 'aws-amplify-react';
 import { Hub } from 'aws-amplify';
 import TasksContainer from './components/TasksContainer';
-import TaskCreator from "./components/TaskCreator";
 import { Auth, API, Amplify } from './auth';
-import { Appbar, Button, Container } from 'muicss/react';
+import { Appbar, Container } from 'muicss/react';
 
 
 function App() {
@@ -40,7 +39,7 @@ function App() {
 
   return (
     <div>
-        <Appbar><h1>The AMAZING Serverless Client</h1></Appbar>
+        <Appbar><h1>The AMAZING Serverless Client (sarcasm provided)</h1></Appbar>
         <Container>
             <TasksContainer />
             <TaskCreator />
