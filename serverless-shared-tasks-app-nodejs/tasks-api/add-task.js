@@ -1,6 +1,8 @@
 const AWS = require('aws-sdk');
 const uuidv4 = require('uuid').v4;
 const { validateTask } = require('./validator');
+const awsXRay = require('aws-xray-sdk');
+const awsSdk = awsXRay.captureAWS(require('aws-sdk'));
 
 // TODO - externalize
 AWS.config.update({ region: 'us-east-1'});
@@ -8,18 +10,6 @@ AWS.config.update({ region: 'us-east-1'});
 const dynamoDB = new AWS.DynamoDB({ apiVersion: '2012-08-10' });
 const TASKS_TABLE_NAME = process.env['SHARED_TASKS_TABLE_NAME'];
 
-/**
- *
- * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
- * @param {Object} event - API Gateway Lambda Proxy Input Format
- *
- * Context doc: https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html
- * @param {Object} context
- *
- * Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
- * @returns {Object} object - API Gateway Lambda Proxy Output Format
- *
- */
 exports.handler = async (event, context) => {
     const headers = {
         'Access-Control-Allow-Origin': '*',
@@ -28,15 +18,26 @@ exports.handler = async (event, context) => {
         'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
     };
 
-    const task = event.body.task || {};
-    const errors = validateTask(event.body.task);
+    // this is here to properly debug the payload coming in.
+    // because each bugfix is a deploy cycle to test the API Gateway
+    // by default, I had to get very long-form in debugging my silly
+    // errors
+    console.log('event', JSON.stringify(event));
+    const bodyText = event.body;
+    console.log('body', bodyText);
+    const parsedBody = JSON.parse(bodyText);
+    console.log('parsed body', parsedBody);
+    const task = parsedBody.task;
+    console.log('task', task);
+    const errors = validateTask(task);
     if (errors) {
+        console.error(errors);
         return {
            'statusCode': 422,
-            'body': JSON.stringify({
-                'errors': JSON.stringify(errors)
-            })
-        }
+            'body': {
+                'errors': errors
+            }
+        };
     }
 
     let response;
@@ -46,10 +47,10 @@ exports.handler = async (event, context) => {
             Item: {
                 'taskOwner': { 'S': task.taskOwner },
                 'taskId': { 'S': uuidv4() },
-                'priority': { 'N': task.priority.toString() },
+                'priority': { 'N': task.priority ? task.priority.toString() : '1' },
                 'description': { 'S': task.description },
                 'dueDate': { 'S': task.dueDate },
-                'complete': { 'BOOL': false }
+                'completed': { 'BOOL': false }
             }
         };
 

@@ -1,0 +1,21 @@
+{
+  "name": "serverless-shared-tasks-app-nodejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "aws-sdk": "^2.656.0",
+    "node-uuid": "^1.4.8"
+  },
+  "devDependencies": {
+    "serverless": "^1.67.3",
+    "serverless-offline": "^6.1.4",
+    "serverless-plugin-tracing": "^2.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

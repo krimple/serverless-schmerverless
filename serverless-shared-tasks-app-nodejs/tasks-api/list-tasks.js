@@ -1,4 +1,6 @@
 const AWS = require('aws-sdk');
+const awsXRay = require('aws-xray-sdk');
+const awsSdk = awsXRay.captureAWS(require('aws-sdk'));
 
 // TODO - externalize
 AWS.config.update({ region: 'us-east-1'});
@@ -19,15 +21,16 @@ const TASKS_TABLE_NAME = process.env['SHARED_TASKS_TABLE_NAME'];
  *
  */
 exports.handler = async (event, context) => {
+    console.log('Event', JSON.stringify(event));
     let response;
     try {
         const params = {
             ExpressionAttributeValues: {
-                ':o': {S: 'KenRimple'}
+                ':o': {S: event.queryStringParameters.taskOwner}
             },
             TableName: TASKS_TABLE_NAME,
             KeyConditionExpression: 'taskOwner = :o',
-            ProjectionExpression: 'taskOwner, taskId, description, dueDate, priority, complete'
+            ProjectionExpression: 'taskOwner, taskId, description, dueDate, priority, completed'
         };
 
         const result = await dynamoDB.query(params).promise();
