@@ -40,9 +40,7 @@ function App() {
   return (
     <div>
         <Appbar><h1>The AMAZING Serverless Client (sarcasm provided)</h1></Appbar>
-        <Container>
-            <TasksContainer />
-        </Container>
+        <TasksContainer />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getTasks } from '../tasks-api';
 import NewTaskForm from "./NewTaskForm";
-import { Appbar, Container, Row, Column, Divider } from 'muicss/react';
+import { Appbar, Container, Row, Col, Divider } from 'muicss/react';
 
 const TasksContainer = ({api}) => {
     async function loadTasks() {
@@ -34,9 +34,18 @@ const TasksContainer = ({api}) => {
     )) : [];
 
     return (
+      <Container fluid={true}>
         <Row>
+            <Col md="4">
+                <NewTaskForm onCreateComplete={
+                    () => {
+                        loadTasks();
+                    }
+                } />
+            </Col>
+            <Divider/>
+            <Col md="8">
            { tasks &&
-               <div>
                <table className="mui-table">
                    <thead>
                      <tr>
@@ -52,16 +61,11 @@ const TasksContainer = ({api}) => {
                      { taskTRs }
                    </tbody>
                </table>
-               </div>
            }
-           <div>
-               <NewTaskForm onCreateComplete={
-                   () => {
-                       loadTasks();
-                   }
-               } />
-           </div>
+            </Col>
+
         </Row>
+      </Container>
     )
 }
 

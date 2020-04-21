@@ -6,6 +6,8 @@ import * as Yup from 'yup';
 // TODO - add SAM support
 const NewTaskForm = ({onCreateComplete}) => {
     return (
+      <>
+        <h2>Add a task...</h2>
         <Formik
             initialValues = {{
                 description: '',
@@ -30,23 +32,31 @@ const NewTaskForm = ({onCreateComplete}) => {
                 })();
             }}
         >
-            <Form>
-                <label htmlFor="description">Description</label>
-                <Field name="description" type="text" />
-                <ErrorMessage name="description" />
+            <Form className="mui-form">
+                <div className="mui-textfield mui-textfield--float-label">
+                    <Field name="description" type="text"/>
+                    <label htmlFor="description">Description</label>
+                    <ErrorMessage name="description" />
+                </div>
 
-                <label htmlFor="priority">Priority</label>
-                <Field name="priority" type="text" />
-                <ErrorMessage name="priority" />
+                <div className="mui-textfield mui-textfield--float-label">
+                    <Field name="priority" type="text"/>
+                    <label htmlFor="priority">Priority (1-5)</label>
+                    <ErrorMessage name="priority" />
+                </div>
 
-                <label htmlFor="dueDate">Due Date</label>
-                <Field name="dueDate" type="text" />
-                <ErrorMessage name="dueDate" />
+                {/* todo - date picker */}
+                <div className="mui-textfield mui-textfield--float-label">
+                    <Field name="dueDate" type="text" />
+                    <label htmlFor="dueDate">Due Date</label>
+                    <ErrorMessage name="dueDate" />
+                </div>
 
                 <button type="submit">Submit</button>
             </Form>
 
         </Formik>
+      </>
     );
 }
 
