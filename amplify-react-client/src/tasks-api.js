@@ -4,9 +4,8 @@ export async function addTask(apiName, task) {
     try {
         const user = await getUser();
         const userName = user['username'];
-        console.log(`****** USER IS ${JSON.stringify(user)}`);
         const token = await getBearerToken();
-        return await API.post('taskManagerNodeServerless', '/tasks', {
+        return await API.post(apiName, '/tasks', {
             headers: {Authorization: token},
             body: {
                 task: {
