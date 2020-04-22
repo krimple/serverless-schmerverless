@@ -18,10 +18,11 @@ const TaskCreator = ({api}) => {
     return (
         <>
             <NewTaskForm />
+            <h3>Create a task...</h3>
            <div>
                 { bearerToken &&
                 <>
-                    <button onClick={async () => {
+                    <button className="mui-btn mui-btn--primary" onClick={async () => {
                         API.post('taskManagerNodeServerless', '/tasks', {
                             headers: { Authorization: bearerToken },
                             body: {
@@ -33,15 +34,12 @@ const TaskCreator = ({api}) => {
                                 }
                             }
                         })
-                    }}>Create a new task via Serverless Node!</button>
+                    }}>via Serverless</button>
                 </>
                 }
-            </div>
-
-            <div>
                 { bearerToken &&
                 <>
-                    <button onClick={async () => {
+                    <button className="mui-btn mui-btn--primary" onClick={async () => {
                         API.post('taskManagerNodeSam', '/tasks', {
                             headers: { Authorization: bearerToken },
                             body: {
@@ -52,7 +50,7 @@ const TaskCreator = ({api}) => {
                                 }
                             }
                         })
-                    }}>Create a task via AWS SAM (NodeJS)!</button>
+                    }}>via AWS SAM</button>
                 </>
                 }
             </div>

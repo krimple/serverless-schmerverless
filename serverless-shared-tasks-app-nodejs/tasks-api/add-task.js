@@ -31,13 +31,13 @@ exports.handler = async (event, context) => {
     console.log('task', task);
     const errors = validateTask(task);
     if (errors) {
-        console.error(errors);
-        return {
-           'statusCode': 422,
-            'body': {
-                'errors': errors
-            }
-        };
+      console.error(errors);
+      return {
+        'statusCode': 422,
+         'body': {
+            'errors': errors
+         }
+      };
     }
 
     let response;
