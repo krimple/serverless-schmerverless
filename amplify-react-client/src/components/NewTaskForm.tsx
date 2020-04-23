@@ -2,9 +2,11 @@ import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { addTask } from '../tasks-api';
 import * as Yup from 'yup';
+import { withRouter } from 'react-router';
 
 // TODO - add SAM support
-const NewTaskForm = ({onCreateComplete}) => {
+const NewTaskForm = (props: any) => {
+    const hashHistory = props.history;
     return (
       <>
         <h2>Add a task...</h2>
@@ -20,11 +22,11 @@ const NewTaskForm = ({onCreateComplete}) => {
                 priority: Yup.number().min(1).max(5).required(),
                 dueDate: Yup.date().required()
             })}
-            onSubmit={(values, { submitting}) => {
+            onSubmit={(values) => {
                 (async () => {
                     try {
                         await addTask('taskManagerNodeServerless', values);
-                        onCreateComplete();
+                        hashHistory.push('/tasks');
                     } catch (e) {
                         alert(`Create Task failed...`);
                         console.error(e);
@@ -60,4 +62,4 @@ const NewTaskForm = ({onCreateComplete}) => {
     );
 }
 
-export default NewTaskForm;
+export default withRouter(NewTaskForm);

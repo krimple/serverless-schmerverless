@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import './index.scss';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import { API, Auth, Amplify } from './auth';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -11,10 +10,6 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root')
 );
-
-window.Auth = Auth;
-window.API = API;
-window.Amplify = Amplify;
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

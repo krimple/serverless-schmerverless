@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getTasks } from '../tasks-api';
-import NewTaskForm from "./NewTaskForm";
-import { Appbar, Container, Row, Col, Divider } from 'muicss/react';
+import { Container } from 'muicss/react';
 
-const TasksContainer = ({api}) => {
+const TasksContainer = () => {
     async function loadTasks() {
         try {
             const tasks = await getTasks('taskManagerNodeServerless');
@@ -35,16 +34,6 @@ const TasksContainer = ({api}) => {
 
     return (
       <Container fluid={true}>
-        <Row>
-            <Col md="4">
-                <NewTaskForm onCreateComplete={
-                    () => {
-                        loadTasks();
-                    }
-                } />
-            </Col>
-            <Divider/>
-            <Col md="8">
            { tasks &&
                <table className="mui-table">
                    <thead>
@@ -62,9 +51,6 @@ const TasksContainer = ({api}) => {
                    </tbody>
                </table>
            }
-            </Col>
-
-        </Row>
       </Container>
     )
 }
