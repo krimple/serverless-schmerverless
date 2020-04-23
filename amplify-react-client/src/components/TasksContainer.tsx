@@ -5,7 +5,7 @@ import { Container } from 'muicss/react';
 const TasksContainer = () => {
     async function loadTasks() {
         try {
-            const tasks = await getTasks('taskManagerNodeServerless');
+            const tasks = await getTasks('serverless');
             setTasks(tasks);
         } catch (e) {
             console.error(e);
@@ -21,7 +21,7 @@ const TasksContainer = () => {
     }, []);
 
     const taskTRs = tasks ? tasks.map(t => (
-        <tr>
+        <tr key={ t['taskId']['S'] }>
             <td>{ t['taskId']['S'] }</td>
             <td>{ t['taskOwner']['S']}</td>
             <td>{ t['description']['S']}</td>

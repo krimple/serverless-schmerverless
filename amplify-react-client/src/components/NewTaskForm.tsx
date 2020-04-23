@@ -25,7 +25,7 @@ const NewTaskForm = (props: any) => {
             onSubmit={(values) => {
                 (async () => {
                     try {
-                        await addTask('taskManagerNodeServerless', values);
+                        await addTask('serverless', values);
                         hashHistory.push('/tasks');
                     } catch (e) {
                         alert(`Create Task failed...`);
