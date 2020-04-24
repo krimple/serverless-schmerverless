@@ -6,7 +6,9 @@ import {
   Redirect,
   Link
 } from 'react-router-dom';
+import { Provider } from 'react-redux';
 import './App.css';
+import {ConnectedRouter} from 'connected-react-router';
 
 import '@aws-amplify/ui/dist/style.css';
 import { withAuthenticator } from 'aws-amplify-react';
@@ -15,7 +17,8 @@ import { Appbar  } from 'muicss/react';
 import TasksContainer from './components/TasksContainer';
 import NewTaskForm from "./components/NewTaskForm";
 
-function App() {
+// @ts-ignore
+function App({history, store}) {
   useEffect(() => {
     console.log('Running effect');
     Hub.listen('auth', ({ payload: { event, data } }) => {
@@ -34,25 +37,29 @@ function App() {
     });
   });
 
+
   return (
-    <Router>
-      <Appbar>
-        <h1>Cloud Tasks</h1>
-      </Appbar>
-      <div className="main-menu">
-        <Link to="/tasks">Tasks</Link> |
-        <Link to="/tasks/new">Add a task...</Link>
-      </div>
-      <Switch>
-        <Redirect path="/" exact={true} to="/tasks" />
-        <Route path="/tasks" exact={true}>
-          <TasksContainer />
-        </Route>
-        <Route path="/tasks/new">
-          <NewTaskForm />
-        </Route>
-      </Switch>
-    </Router>
+    <Provider store={store}>
+      <ConnectedRouter history={history}>
+        <Appbar>
+          <h1>Cloud Tasks</h1>
+        </Appbar>
+        <div className="main-menu">
+          <Link to="/tasks">Tasks</Link> |
+          <Link to="/tasks/new">Add a task...</Link>
+        </div>
+        <Switch>
+          <Redirect path="/" exact={true} to="/tasks" />
+          <Route path="/tasks" exact={true}>
+            <TasksContainer />
+          </Route>
+          <Route path="/tasks/new">
+            <NewTaskForm />
+          </Route>
+        </Switch>
+      </ConnectedRouter>
+    </Provider>
+
   );
 }
 

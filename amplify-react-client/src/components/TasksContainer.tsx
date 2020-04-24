@@ -1,33 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { getTasks } from '../tasks-api';
+import React, { useEffect } from 'react';
 import { Container } from 'muicss/react';
+import { connect } from 'react-redux';
+import { Task } from '../models/task';
+import {loadTasksActionCreator} from "../store/reducers/tasks-reducer";
 
-const TasksContainer = () => {
-    async function loadTasks() {
-        try {
-            const tasks = await getTasks('serverless');
-            setTasks(tasks);
-        } catch (e) {
-            console.error(e);
-            alert('fetch of tasks failed');
-        }
-    }
-    const [tasks, setTasks] = useState([]);
+const TasksContainer = (props: any) => {
 
-    useEffect(() => {
-        (async () => {
-            await loadTasks();
-        })();
-    }, []);
 
-    const taskTRs = tasks ? tasks.map(t => (
-        <tr key={ t['taskId']['S'] }>
-            <td>{ t['taskId']['S'] }</td>
-            <td>{ t['taskOwner']['S']}</td>
-            <td>{ t['description']['S']}</td>
-            <td>{ t['priority']['N']}</td>
-            <td>{ t['dueDate']['S']}</td>
-            <td>{ t['completed']['BOOL']}</td>
+  const tasks: Task[] = props.tasks;
+  const dispatch = props.dispatch;
+
+  useEffect(() => {
+    dispatch(loadTasksActionCreator());
+  })
+
+    const taskTRs = tasks ? tasks.map((t: Task) => (
+        <tr key={ t.id }>
+            <td>{ t.id }</td>
+            <td>{ t.taskOwner }</td>
+            <td>{ t.description }</td>
+            <td>{ t.priority }</td>
+            <td>{ t.dueDate }</td>
+            <td>{ t.completed ? 'YES' : 'NO' }</td>
         </tr>
 
     )) : [];
@@ -55,7 +49,12 @@ const TasksContainer = () => {
     )
 }
 
-export default TasksContainer;
+function mapStateToProps(reduxState: any) {
+  return {
+    tasks: reduxState.tasksApi.tasks || []
+  }
+}
+export default connect(mapStateToProps)(TasksContainer);
 
 
 /*

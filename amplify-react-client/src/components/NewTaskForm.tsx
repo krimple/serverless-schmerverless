@@ -3,6 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { addTask } from '../tasks-api';
 import * as Yup from 'yup';
 import { withRouter } from 'react-router';
+import {Task} from "../models/task";
 
 // TODO - add SAM support
 const NewTaskForm = (props: any) => {
@@ -25,7 +26,7 @@ const NewTaskForm = (props: any) => {
             onSubmit={(values) => {
                 (async () => {
                     try {
-                        await addTask('serverless', values);
+                        await addTask('serverless', values as Task);
                         hashHistory.push('/tasks');
                     } catch (e) {
                         alert(`Create Task failed...`);
@@ -56,7 +57,6 @@ const NewTaskForm = (props: any) => {
 
                 <button type="submit">Submit</button>
             </Form>
-
         </Formik>
       </>
     );

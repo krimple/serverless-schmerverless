@@ -1,6 +1,8 @@
 import { API, getBearerToken, getUser } from './auth';
+import { Task } from './models/task';
+import React from "react";
 
-export async function addTask(apiName, task) {
+export async function addTask(apiName: string, task: Task) {
     try {
         const user = await getUser();
         const userName = user['username'];
@@ -24,7 +26,7 @@ export async function addTask(apiName, task) {
     }
 }
 
-export async function getTasks(apiName:string) {
+export async function getTasks(apiName:string):Promise<Task[]> {
     try {
         const user = await getUser();
         const userName = user['username'];
@@ -35,7 +37,18 @@ export async function getTasks(apiName:string) {
                 taskOwner: userName
             }
         });
-        return response.tasks;
+
+        // NOTE - the data coming back from DynamoDB is not typed,
+        // it's a bag of properties. So we're doing a domain mapping process
+        // here.
+        return response.tasks.map((t: any) => ({
+           taskId: t['taskId']['S'],
+           taskOwner: t['taskOwner']['S'],
+           description: t['description']['S'],
+           priority: t['priority']['N'],
+           dueDate: t['dueDate']['S'],
+           completed: t['completed']['BOOL']
+        }));
     } catch (e) {
         console.log('failed', e);
         throw e;

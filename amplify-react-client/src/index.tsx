@@ -3,10 +3,21 @@ import ReactDOM from 'react-dom';
 import './index.scss';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import { createHashHistory } from 'history'
+import {storeFactory} from "./store";
+import {loadTasksActionCreator} from "./store/reducers/tasks-reducer";
+
+const history = createHashHistory({
+  hashType: 'slash'
+});
+
+const store = storeFactory();
+// @ts-ignore
+store.dispatch(loadTasksActionCreator());
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <App history={history} store={store} />
   </React.StrictMode>,
   document.getElementById('root')
 );

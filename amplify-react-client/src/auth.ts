@@ -1,5 +1,5 @@
 import awsconfig from './aws-config';
-import Amplify, { Hub, Auth, API } from 'aws-amplify';
+import Amplify, { Auth, API } from 'aws-amplify';
 
 // doing this here so that the stack is configured before
 // we attempt to wrap anything
