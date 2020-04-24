@@ -1,38 +1,17 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {Link, Redirect, Route, Switch} from 'react-router-dom';
-import {Provider, useDispatch} from 'react-redux';
+import {Provider} from 'react-redux';
 import './App.css';
 import {ConnectedRouter} from 'connected-react-router';
-
 import '@aws-amplify/ui/dist/style.css';
 import {withAuthenticator} from 'aws-amplify-react';
-import {Hub} from 'aws-amplify';
 import {Appbar} from 'muicss/react';
 import TasksContainer from './components/TasksContainer';
-import NewTaskForm from "./components/NewTaskForm";
-import {loadTasksActionCreator} from "./store/reducers/tasks-reducer";
+import NewTaskForm from './components/NewTaskForm';
+import {switchApiActionCreator} from "./store/reducers/tasks-reducer";
 
 // @ts-ignore
 function App({history, store}) {
- useEffect(() => {
-    console.log('Running effect');
-    Hub.listen('auth', ({ payload: { event, data } }) => {
-      switch (event) {
-        case 'signIn':
-          console.log('sign in', event, data);
-          break;
-        case 'signOut':
-          console.log('sign out', event, data);
-          break;
-        default:
-          console.log('unknown event', event, data);
-          break;
-      }
-      return null;
-    });
-  });
-
-
   return (
     <Provider store={store}>
       <ConnectedRouter history={history}>
@@ -43,6 +22,14 @@ function App({history, store}) {
           <Link to="/tasks">Tasks</Link> |
           <Link to="/tasks/new">Add a task...</Link>
         </div>
+        <span>API: </span>
+        <select onChange={(e) => {
+          console.log(e.target.value);
+          store.dispatch(switchApiActionCreator(e.target.value));
+        }}>
+          <option defaultChecked={true} value='serverless'>Serverless Framework</option>
+          <option value='sam'>AWS SAM</option>
+        </select>
         <Switch>
           <Redirect path="/" exact={true} to="/tasks" />
           <Route path="/tasks" exact={true}>

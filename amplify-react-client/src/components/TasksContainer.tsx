@@ -10,7 +10,7 @@ const TasksContainer = (props: any) => {
 
   useEffect(() => {
     dispatch(loadTasksActionCreator());
-  }, []);
+  }, [dispatch]);
   console.log(`re-rendering ${JSON.stringify(props)}`);
   const tasks: Task[] = props.tasks;
 
