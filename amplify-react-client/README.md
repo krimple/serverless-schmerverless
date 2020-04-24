@@ -1,44 +1,36 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+To get this running:
 
-## Available Scripts
+Make sure you've:
 
-In the project directory, you can run:
+* installed the infra stack
+* installed each of the serverless, sam and (eventually) architect stacks
 
-### `npm start`
+Then:
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+* Make a copy of `.env.local.sample` and save as `.env.local`
+* Write down the outputs of infra in CloudFormation Stack outputs for the cognito pool id and client id, and what region you deploy it in
+* Change the settings in .env.local to match those
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+Install your dependencies:
 
-### `npm test`
+```text
+npm install
+```
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Run it
 
-### `npm run build`
+```
+npm start
+```
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Note: you may have to do a `npm rebuild node-sass` if you get that warning.
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+Technologies used:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+* AWS Amplify React components
+* React 16
+* React Router
+* Redux with Thunk middleware
+* MUI CSS library
+* `node-sass`
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
