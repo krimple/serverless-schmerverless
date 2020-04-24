@@ -1,55 +1,55 @@
 import React, { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { loadTasksActionCreator} from "../store/reducers/tasks-reducer";
 import { Container } from 'muicss/react';
 import { connect } from 'react-redux';
 import { Task } from '../models/task';
-import {loadTasksActionCreator} from "../store/reducers/tasks-reducer";
 
 const TasksContainer = (props: any) => {
-
-
-  const tasks: Task[] = props.tasks;
-  const dispatch = props.dispatch;
+  const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(loadTasksActionCreator());
-  })
+  }, []);
+  console.log(`re-rendering ${JSON.stringify(props)}`);
+  const tasks: Task[] = props.tasks;
 
-    const taskTRs = tasks ? tasks.map((t: Task) => (
-        <tr key={ t.id }>
-            <td>{ t.id }</td>
-            <td>{ t.taskOwner }</td>
-            <td>{ t.description }</td>
-            <td>{ t.priority }</td>
-            <td>{ t.dueDate }</td>
-            <td>{ t.completed ? 'YES' : 'NO' }</td>
-        </tr>
+  const taskTRs = tasks ? tasks.map((t: Task) => (
+    <tr key={ t.taskId }>
+      <td>{ t.taskId }</td>
+      <td>{ t.taskOwner }</td>
+      <td>{ t.description }</td>
+      <td>{ t.priority }</td>
+      <td>{ t.dueDate }</td>
+      <td>{ t.completed ? 'YES' : 'NO' }</td>
+    </tr>
+  )) : [];
 
-    )) : [];
-
-    return (
-      <Container fluid={true}>
-           { tasks &&
-               <table className="mui-table">
-                   <thead>
-                     <tr>
-                         <th>ID</th>
-                         <th>Owner</th>
-                         <th>Description</th>
-                         <th>Priority</th>
-                         <th>Due Date</th>
-                         <th>Complete</th>
-                     </tr>
-                   </thead>
-                   <tbody>
-                     { taskTRs }
-                   </tbody>
-               </table>
-           }
-      </Container>
-    )
+  return (
+    <Container fluid={true}>
+      { tasks &&
+      <table className="mui-table">
+          <thead>
+          <tr key="thead">
+              <th>ID</th>
+              <th>Owner</th>
+              <th>Description</th>
+              <th>Priority</th>
+              <th>Due Date</th>
+              <th>Complete</th>
+          </tr>
+          </thead>
+          <tbody>
+          { taskTRs }
+          </tbody>
+      </table>
+      }
+    </Container>
+  )
 }
 
 function mapStateToProps(reduxState: any) {
+  console.log(`state to props ${JSON.stringify(reduxState)}`)
   return {
     tasks: reduxState.tasksApi.tasks || []
   }

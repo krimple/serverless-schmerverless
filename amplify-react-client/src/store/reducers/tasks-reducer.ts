@@ -5,12 +5,14 @@ import {  Dispatch } from "redux";
 export interface TasksApiState {
   tasks: Task[];
   callPending: boolean,
+  error?: string,
   apiPrefix: string
 }
 
 export const initialState: TasksApiState = {
   tasks: [],
   callPending: false,
+  error: undefined,
   apiPrefix: 'serverless'
 };
 
@@ -38,15 +40,18 @@ export default function tasksReducer(
       return {...state};
     case TaskActionTypes.TASK_ACTION_CREATE_TASK_PENDING:
       return {...state, callPending: true};
-    case TaskActionTypes.TASK_ACTION_CREATE_TASK_SUCCESS:
-      return {...state, callPending: false, tasks: action.payload.tasks};
-
+    case TaskActionTypes.TASK_ACTION_FETCH_TASKS_PENDING:
+      return {...state, callPending: true, error: undefined, tasks: []};
+    case TaskActionTypes.TASK_ACTION_FETCH_TASKS_SUCCESS:
+      return {...state, callPending: false, error: undefined, tasks: action.payload.tasks};
+    case TaskActionTypes.TASK_ACTION_FETCH_TASKS_FAIL:
+      return {...state, callPending: false, tasks: [], error: action.payload.error};
       default:
       return state;
   }
 }
 
-export function loadTasksActionCreator() {
+export const loadTasksActionCreator = () => {
   // @ts-ignore
   return async (dispatch, getState) => {
     dispatch({
@@ -56,8 +61,8 @@ export function loadTasksActionCreator() {
       const apiPrefix = getState().tasksApi.apiPrefix;
       const tasks: Task[] = await getTasks(apiPrefix);
 
-      dispatch({
-        type: TaskActionTypes.TASK_ACTION_FETCH_TASKS_SUCCESS.valueOf(),
+      return dispatch({
+        type: TaskActionTypes.TASK_ACTION_FETCH_TASKS_SUCCESS,
         payload: {
           tasks: tasks
         }
@@ -65,8 +70,10 @@ export function loadTasksActionCreator() {
     } catch (e) {
       console.error(e);
       dispatch({
-        type: TaskActionTypes.TASK_ACTION_FETCH_TASKS_FAIL.valueOf(),
-        error: e
+        type: TaskActionTypes.TASK_ACTION_FETCH_TASKS_FAIL,
+        payload: {
+          error: e
+        }
       });
     }
   }

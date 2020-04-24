@@ -1,25 +1,20 @@
-import React, { useEffect } from 'react';
-import {
-  HashRouter as Router,
-  Switch,
-  Route,
-  Redirect,
-  Link
-} from 'react-router-dom';
-import { Provider } from 'react-redux';
+import React, {useEffect} from 'react';
+import {Link, Redirect, Route, Switch} from 'react-router-dom';
+import {Provider, useDispatch} from 'react-redux';
 import './App.css';
 import {ConnectedRouter} from 'connected-react-router';
 
 import '@aws-amplify/ui/dist/style.css';
-import { withAuthenticator } from 'aws-amplify-react';
-import { Hub } from 'aws-amplify';
-import { Appbar  } from 'muicss/react';
+import {withAuthenticator} from 'aws-amplify-react';
+import {Hub} from 'aws-amplify';
+import {Appbar} from 'muicss/react';
 import TasksContainer from './components/TasksContainer';
 import NewTaskForm from "./components/NewTaskForm";
+import {loadTasksActionCreator} from "./store/reducers/tasks-reducer";
 
 // @ts-ignore
 function App({history, store}) {
-  useEffect(() => {
+ useEffect(() => {
     console.log('Running effect');
     Hub.listen('auth', ({ payload: { event, data } }) => {
       switch (event) {

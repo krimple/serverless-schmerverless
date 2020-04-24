@@ -1,6 +1,5 @@
 import { API, getBearerToken, getUser } from './auth';
 import { Task } from './models/task';
-import React from "react";
 
 export async function addTask(apiName: string, task: Task) {
     try {
