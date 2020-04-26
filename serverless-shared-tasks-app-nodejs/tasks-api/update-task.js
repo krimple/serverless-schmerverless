@@ -50,12 +50,20 @@ exports.handler = async (event, context) => {
                 'taskId': { 'S': event.pathParameters.taskId }
             },
             // TODO - complete this
-            UpdateExpression: {
-                'priority': { 'N': task.priority ? task.priority.toString() : '1' },
-                'description': { 'S': task.description },
-                'dueDate': { 'S': task.dueDate },
-                'completed': { 'BOOL': task.completed },
-                'completedDate': { 'S': task.completedDate }
+            UpdateExpression:   `
+              SET priority = :priority,
+                  description = :description,
+                  dueDate = :dueDate,
+                  completed = :completed,
+                  completedDate = :completedDate
+            `,
+
+            ExpressionAttributeValues: {
+                ':priority': { 'N': task.priority ? task.priority.toString() : '1' },
+                ':description': { 'S': task.description },
+                ':dueDate': { 'S': task.dueDate },
+                ':completed': { 'BOOL': task.completed },
+                ':completedDate': { 'S': task.completedDate }
             }
         };
 
