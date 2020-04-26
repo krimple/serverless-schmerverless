@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
 const uuidv4 = require('uuid').v4;
-const { validateCreateTask } = require('./validator');
+const { validateUpdateTask } = require('./validator');
 const awsXRay = require('aws-xray-sdk');
 const awsSdk = awsXRay.captureAWS(require('aws-sdk'));
 
@@ -11,6 +11,7 @@ const dynamoDB = new AWS.DynamoDB({ apiVersion: '2012-08-10' });
 const TASKS_TABLE_NAME = process.env['SHARED_TASKS_TABLE_NAME'];
 
 exports.handler = async (event, context) => {
+    console.log('Event', JSON.stringify(event));
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
@@ -29,7 +30,7 @@ exports.handler = async (event, context) => {
     console.log('parsed body', parsedBody);
     const task = parsedBody.task;
     console.log('task', task);
-    const errors = validateCreateTask(task);
+    const errors = validateUpdateTask(task);
     if (errors) {
       console.error(errors);
       return {
@@ -44,22 +45,28 @@ exports.handler = async (event, context) => {
     try {
         const params = {
             TableName: TASKS_TABLE_NAME,
-            Item: {
-                'taskOwner': { 'S': task.taskOwner },
-                'taskId': { 'S': uuidv4() },
+            Key: {
+                'taskOwner': { 'S': event.pathParameters.taskOwner },
+                'taskId': { 'S': event.pathParameters.taskId }
+            },
+            // TODO - complete this
+            UpdateExpression: {
                 'priority': { 'N': task.priority ? task.priority.toString() : '1' },
                 'description': { 'S': task.description },
                 'dueDate': { 'S': task.dueDate },
-                'completed': { 'BOOL': false }
+                'completed': { 'BOOL': task.completed },
+                'completedDate': { 'S': task.completedDate }
             }
         };
 
-        const result = await dynamoDB.putItem(params).promise();
+        const result = await dynamoDB.updateItem(params).promise();
 
+        // NOTE - could also return updated REST value but we'll re-fetch the
+        // entire set of tasks anyway
         response = {
-          'statusCode': 201,
+          'statusCode': 200,
           'headers': headers,
-          'body': 'CREATED'
+          'body': 'OK'
         };
     } catch (err) {
         console.log(err);

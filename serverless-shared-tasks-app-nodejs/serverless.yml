@@ -58,6 +58,27 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+  updateTask:
+    handler: tasks-api/update-task.handler
+    memory: 256
+    tracing: true
+    events:
+      - http:
+          method: PUT
+          path: /tasks/{taskOwner}/{taskId}
+          cors: true         # defaults are ok
+          # refers to the Cognito authorizer below - some duplication
+          request:
+            parameters:
+              paths:
+                taskOwner: true
+                taskId: true
+
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
   listTasks:
     handler: tasks-api/list-tasks.handler
     memory: 512
@@ -68,6 +89,26 @@ functions:
           path: /tasks
           cors: true         # defaults are OK
           # refers to the Cognito authorizer below - some duplication
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  getTask:
+    handler: tasks-api/get-task.handler
+    memory: 128
+    tracing: true
+    events:
+      - http:
+          method: GET
+          path: /tasks/{taskOwner}/{taskId}
+          cors: true         # defaults are OK
+          # refers to the Cognito authorizer below - some duplication
+          request:
+            parameters:
+              paths:
+                taskOwner: true
+                taskId: true
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:

@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { loadTasksActionCreator} from "../store/reducers/tasks-reducer";
 import { Container } from 'muicss/react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { Task } from '../models/task';
 
 const TasksContainer = (props: any) => {
@@ -16,7 +17,7 @@ const TasksContainer = (props: any) => {
 
   const taskTRs = tasks ? tasks.map((t: Task) => (
     <tr key={ t.taskId }>
-      <td>{ t.taskId }</td>
+      <td><Link to={'/tasks/' + t.taskId}>{ t.taskId }</Link></td>
       <td>{ t.taskOwner }</td>
       <td>{ t.description }</td>
       <td>{ t.priority }</td>

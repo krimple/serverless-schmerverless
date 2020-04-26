@@ -1,9 +1,10 @@
 import { Task } from '../../models/task';
-import { addTask, getTasks } from '../../tasks-api';
+import {addTask, getSingleTask, getTasks, updateSingleTask} from '../../tasks-api';
 import {  Dispatch } from "redux";
 
 export interface TasksApiState {
   tasks: Task[];
+  editedTask?: Task,
   callPending: boolean,
   error?: string,
   api: string
@@ -11,6 +12,7 @@ export interface TasksApiState {
 
 export const initialState: TasksApiState = {
   tasks: [],
+  editedTask: undefined,
   callPending: false,
   error: undefined,
   api: 'serverless'
@@ -24,6 +26,12 @@ export enum TaskActionTypes {
   TASK_ACTION_FETCH_TASKS_PENDING = 'TASK_ACTION_FETCH_TASKS_PENDING',
   TASK_ACTION_FETCH_TASKS_SUCCESS = 'TASK_ACTION_FETCH_TASKS_SUCCESS',
   TASK_ACTION_FETCH_TASKS_FAIL = 'TASK_ACTION_FETCH_TASKS_FAIL',
+  TASK_ACTION_FETCH_SINGLE_TASK_PENDING = 'TASK_ACTION_FETCH_SINGLE_TASK_PENDING',
+  TASK_ACTION_FETCH_SINGLE_TASK_SUCCESS = 'TASK_ACTION_FETCH_SINGLE_TASK_SUCCESS',
+  TASK_ACTION_FETCH_SINGLE_TASK_FAIL = 'TASK_ACTION_FETCH_SINGLE_TASK_FAIL',
+  TASK_ACTION_UPDATE_SINGLE_TASK_PENDING = 'TASK_ACTION_UPDATE_SINGLE_TASK_PENDING',
+  TASK_ACTION_UPDATE_SINGLE_TASK_SUCCESS = 'TASK_ACTION_UPDATE_SINGLE_TASK_SUCCESS',
+  TASK_ACTION_UPDATE_SINGLE_TASK_FAIL = 'TASK_ACTION_UPDATE_SINGLE_TASK_FAIL',
   TASK_ACTION_SWITCH_API = 'TASK_ACTION_SWITCH_API'
 }
 
@@ -48,6 +56,12 @@ export default function tasksReducer(
       return {...state, callPending: false, tasks: [], error: action.payload.error};
     case TaskActionTypes.TASK_ACTION_SWITCH_API:
       return { ...state, api: action.payload.api}
+    case TaskActionTypes.TASK_ACTION_FETCH_SINGLE_TASK_PENDING:
+      return {...state, callPending: true};
+    case TaskActionTypes.TASK_ACTION_FETCH_SINGLE_TASK_SUCCESS:
+      return {...state, callPending: false, editedTask: action.payload.task};
+    case TaskActionTypes.TASK_ACTION_FETCH_SINGLE_TASK_FAIL:
+      return {...state, callPending: false, editedTask: undefined, error: action.payload.error};
     default:
       return state;
   }
@@ -81,6 +95,34 @@ export const loadTasksActionCreator = () => {
   }
 }
 
+export const fetchSingleTaskActionCreator = (taskId: string) => {
+  // @ts-ignore
+  return async (dispatch, getState) => {
+    dispatch({
+      type: TaskActionTypes.TASK_ACTION_FETCH_SINGLE_TASK_PENDING
+    });
+    try {
+      const apiPrefix = getState().tasksApi.api;
+      const task: Task = await getSingleTask(apiPrefix, taskId);
+
+      return dispatch({
+        type: TaskActionTypes.TASK_ACTION_FETCH_SINGLE_TASK_SUCCESS,
+        payload: {
+          task: task
+        }
+      });
+    } catch (e) {
+      console.error(e);
+      dispatch({
+        type: TaskActionTypes.TASK_ACTION_FETCH_SINGLE_TASK_FAIL,
+        payload: {
+          error: e
+        }
+      });
+    }
+  }
+}
+
 export function addTaskActionCreator(task: Task) {
   return async (dispatch: Dispatch, getState: () => any) => {
    try {
@@ -100,6 +142,24 @@ export function addTaskActionCreator(task: Task) {
   };
 }
 
+export function updateSingleTaskActionCreator(task: Task) {
+  return async (dispatch: Dispatch, getState: () => any) => {
+    try {
+      const api = getState().tasksApi.api;
+      await updateSingleTask(api, task);
+      return dispatch({
+        type: TaskActionTypes.TASK_ACTION_UPDATE_SINGLE_TASK_SUCCESS
+      })
+    } catch (e) {
+      console.error(e);
+      return dispatch({
+        type: TaskActionTypes.TASK_ACTION_UPDATE_SINGLE_TASK_FAIL,
+        error: e
+      })
+    }
+  };
+}
+
 export function switchApiActionCreator(api: string) {
   return async (dispatch: Dispatch, getState: () => any) => {
 
@@ -111,6 +171,7 @@ export function switchApiActionCreator(api: string) {
       }
     });
     // next, load the state again
+    // @ts-ignore
     dispatch(loadTasksActionCreator());
   };
 }

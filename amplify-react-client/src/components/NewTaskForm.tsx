@@ -5,7 +5,6 @@ import * as Yup from 'yup';
 import { withRouter } from 'react-router';
 import {Task} from "../models/task";
 
-// TODO - add SAM support
 const NewTaskForm = (props: any) => {
     const hashHistory = props.history;
     return (

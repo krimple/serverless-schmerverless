@@ -9,6 +9,7 @@ import {Appbar} from 'muicss/react';
 import TasksContainer from './components/TasksContainer';
 import NewTaskForm from './components/NewTaskForm';
 import {switchApiActionCreator} from "./store/reducers/tasks-reducer";
+import UpdateTaskForm from "./components/UpdateTaskForm";
 
 // @ts-ignore
 function App({history, store}) {
@@ -37,6 +38,9 @@ function App({history, store}) {
           </Route>
           <Route path="/tasks/new">
             <NewTaskForm />
+          </Route>
+          <Route path="/tasks/:id">
+            <UpdateTaskForm />
           </Route>
         </Switch>
       </ConnectedRouter>
