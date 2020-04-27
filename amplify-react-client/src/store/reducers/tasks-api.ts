@@ -1,20 +1,18 @@
-import { API, getBearerToken, getUser } from './auth';
-import { Task } from './models/task';
+import { API, getBearerToken, getUser } from '../../auth';
+import { Task } from '../../models/task';
 
 export async function addTask(apiName: string, task: Task) {
     try {
         const user = await getUser();
         const userName = user['username'];
         const token = await getBearerToken();
-        return await API.post(apiName, '/tasks', {
+        return await API.post(apiName, `/tasks/${encodeURI(userName)}`, {
             headers: {Authorization: token},
             body: {
                 task: {
-                    taskOwner: userName,
                     description: task.description,
                     priority: task.priority,
                     dueDate: task.dueDate
-
                 }
             }
         });
@@ -28,7 +26,7 @@ export async function updateSingleTask(apiName: string, task: Task) {
         const user = await getUser();
         const userName = user['username'];
         const token = await getBearerToken();
-        return await API.put(apiName, `/tasks/${userName}/${task.taskId}`, {
+        return await API.put(apiName, `/tasks/${encodeURI(userName)}/${task.taskId}`, {
             headers: {Authorization: token},
             body: {
                 task: {
@@ -51,11 +49,8 @@ export async function getTasks(apiName:string):Promise<Task[]> {
         const user = await getUser();
         const userName = user['username'];
         const token = await getBearerToken();
-        const response = await API.get(apiName, '/tasks', {
-            headers: { Authorization: token },
-            queryStringParameters: {
-                taskOwner: userName
-            }
+        const response = await API.get(apiName, `/tasks/${encodeURI(userName)}`, {
+            headers: { Authorization: token }
         });
 
         // NOTE - the data coming back from DynamoDB is not typed,

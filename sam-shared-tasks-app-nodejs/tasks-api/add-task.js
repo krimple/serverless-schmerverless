@@ -26,6 +26,8 @@ exports.handler = async (event, context, callback) => {
     const bodyText = event.body;
     const parsedBody = JSON.parse(bodyText);
     const task = parsedBody.task;
+    // TODO - authenticate based on the current user, this is not validated
+    // but failing to have a user in the path makes it 404
     const errors = validateCreateTask(task);
 
     if (errors) {
@@ -45,7 +47,7 @@ exports.handler = async (event, context, callback) => {
         const params = {
             TableName: TASKS_TABLE_NAME,
             Item: {
-                'taskOwner': { 'S': task.taskOwner },
+                'taskOwner': { S: event.pathParameters.taskOwner },
                 'taskId': { 'S': uuidv4() },
                 'priority': { 'N': task.priority ? task.priority.toString() : '1' },
                 'description': { 'S': task.description },

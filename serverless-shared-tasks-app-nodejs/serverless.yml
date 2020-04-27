@@ -50,8 +50,11 @@ functions:
     events:
       - http:
           method: POST
-          path: /tasks
+          path: /tasks/{taskOwner}
           cors: true         # defaults are ok
+          request:
+            parameters:
+              taskOwner: true
           # refers to the Cognito authorizer below - some duplication
           authorizer:
             type: COGNITO_USER_POOLS
@@ -85,9 +88,13 @@ functions:
     events:
       - http:
           method: GET
-          path: /tasks
+          path: /tasks/{taskOwner}
           cors: true         # defaults are OK
           # refers to the Cognito authorizer below - some duplication
+          request:
+            parameters:
+              paths:
+                taskOwner: true
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:

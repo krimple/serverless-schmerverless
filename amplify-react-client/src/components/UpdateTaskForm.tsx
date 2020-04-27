@@ -1,13 +1,12 @@
 import React, {useEffect} from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { updateSingleTask } from '../tasks-api';
 import * as Yup from 'yup';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 
 import {Task} from "../models/task";
 import {useDispatch} from "react-redux";
-import {fetchSingleTaskActionCreator} from "../store/reducers/tasks-reducer";
+import {fetchSingleTaskActionCreator, updateSingleTaskActionCreator} from "../store/reducers/tasks-reducer";
 
 const UpdateTaskForm = (props: any) => {
     const task = props.task;
@@ -48,8 +47,7 @@ const UpdateTaskForm = (props: any) => {
                         // this is messy; in Redux we piece it together with the user's
                         // username, plus the taskId here (which is not part of the form)
                         // but part of the route. For now, leaving this as a 'make better'
-                        await updateSingleTask('serverless',
-                          { ...values, taskId: props.match.params.id } as Task);
+                        await updateSingleTaskActionCreator({ ...values, taskId: props.match.params.id } as Task);
                         hashHistory.push('/tasks');
                     } catch (e) {
                         alert(`Update Task failed...`);
@@ -105,4 +103,4 @@ function mapStateToProps(reduxState: any) {
     };
 }
 
-export default connect(mapStateToProps)(withRouter((UpdateTaskForm)));
+export default connect(mapStateToProps)(withRouter(UpdateTaskForm));

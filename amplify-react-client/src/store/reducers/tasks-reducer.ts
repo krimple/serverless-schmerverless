@@ -1,5 +1,5 @@
 import { Task } from '../../models/task';
-import {addTask, getSingleTask, getTasks, updateSingleTask} from '../../tasks-api';
+import {addTask, getSingleTask, getTasks, updateSingleTask} from './tasks-api';
 import {  Dispatch } from "redux";
 
 export interface TasksApiState {

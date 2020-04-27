@@ -1,12 +1,14 @@
 import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { addTask } from '../tasks-api';
 import * as Yup from 'yup';
 import { withRouter } from 'react-router';
 import {Task} from "../models/task";
+import {connect} from "react-redux";
+import {addTaskActionCreator} from '../store/reducers/tasks-reducer';
 
 const NewTaskForm = (props: any) => {
     const hashHistory = props.history;
+    const dispatch = props.dispatch;
     return (
       <>
         <h3>Add a task...</h3>
@@ -25,7 +27,7 @@ const NewTaskForm = (props: any) => {
             onSubmit={(values) => {
                 (async () => {
                     try {
-                        await addTask('serverless', values as Task);
+                        await dispatch(addTaskActionCreator(values as Task));
                         hashHistory.push('/tasks');
                     } catch (e) {
                         alert(`Create Task failed...`);
@@ -61,4 +63,10 @@ const NewTaskForm = (props: any) => {
     );
 }
 
-export default withRouter(NewTaskForm);
+function mapStateToProps() {
+  return {
+
+  };
+}
+
+export default connect(mapStateToProps)(withRouter(NewTaskForm));

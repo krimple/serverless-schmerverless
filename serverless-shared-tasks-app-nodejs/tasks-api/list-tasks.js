@@ -22,11 +22,12 @@ const TASKS_TABLE_NAME = process.env['SHARED_TASKS_TABLE_NAME'];
  */
 exports.handler = async (event, context) => {
     console.log('Event', JSON.stringify(event));
+    console.log('Context', JSON.stringify(context));
     let response;
     try {
         const params = {
             ExpressionAttributeValues: {
-                ':o': {S: event.queryStringParameters.taskOwner}
+                ':o': {S: event.pathParameters.taskOwner},
             },
             TableName: TASKS_TABLE_NAME,
             KeyConditionExpression: 'taskOwner = :o',
