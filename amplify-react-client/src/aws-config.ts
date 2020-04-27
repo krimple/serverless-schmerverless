@@ -25,7 +25,7 @@ const config = {
         endpoint: process.env['REACT_APP_SERVERLESS_ENDPOINT_PREFIX']
       },
       {
-        name: 'arc',
+        name: 'architect',
         endpoint: process.env['REACT_APP_ARCHITECT_ENDPOINT_PREFIX']
       }
     ]

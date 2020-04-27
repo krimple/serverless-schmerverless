@@ -29,6 +29,7 @@ function App({ history, store }) {
               }}>
                 <option defaultChecked={true} value='serverless'>Serverless Framework</option>
                 <option value='sam'>AWS SAM</option>
+                <option value='architect'>Architect</option>
               </select>
               <Authenticator theme={Theme} />
             </Navbar.Collapse>

@@ -16,9 +16,10 @@ runtime nodejs12.x
 get /
 get /tasks
 post /tasks
+put /tasks/:taskOwner/:taskId
 
 @tables
-tasks
-  taskOwner *String
-  taskId **String
+# tasks
+#   taskOwner *String
+#   taskId **String
 

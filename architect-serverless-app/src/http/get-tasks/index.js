@@ -2,9 +2,11 @@ let { tables } = require('@architect/functions')
 
 // learn more about HTTP functions here: https://arc.codes/primitives/http
 exports.handler = async function handler(request) {
+    const tableName = process.env['SHARED_TASKS_TABLE_NAME'];
+    console.log(`Table name is ${tableName}`);
     let data = await tables();
     try {
-        let response = await data.tasks.query({
+        let response = await data[tableName].query({
             KeyConditionExpression: 'taskOwner = :taskOwner',
             ExpressionAttributeValues: {
                 ':taskOwner': 'KenRimple'
