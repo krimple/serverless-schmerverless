@@ -53,11 +53,19 @@ Resources:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             RestApiId: !Ref TaskManagerApi
-            Path: /tasks
+            Path: /tasks/{taskOwner}/{taskId}
             Method: put
+          RequestParameters:
+            - "method.request.path.taskOwner":
+                Required: true
+                Caching: false
+            - "method.request.path.taskId":
+                Required: true
+                Caching: false
       Environment:
         Variables:
           SHARED_TASKS_TABLE_NAME:  !Ref SharedTasksTableName
+
   ListTasksFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:

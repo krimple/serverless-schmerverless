@@ -73,7 +73,6 @@ functions:
               paths:
                 taskOwner: true
                 taskId: true
-
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:
