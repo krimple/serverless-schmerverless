@@ -10,8 +10,9 @@ AWS.config.update({ region: 'us-east-1'});
 const dynamoDB = new AWS.DynamoDB({ apiVersion: '2012-08-10' });
 const TASKS_TABLE_NAME = process.env['SHARED_TASKS_TABLE_NAME'];
 
-exports.handler = async (event, context) => {
+exports.handler = async (event, context, callback) => {
     const headers = {
+        'content-type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
         'Access-Control-Allow-Headers': 'X-Forwarded-For,Content-Type,Authorization',
@@ -22,22 +23,21 @@ exports.handler = async (event, context) => {
     // because each bugfix is a deploy cycle to test the API Gateway
     // by default, I had to get very long-form in debugging my silly
     // errors
-    console.log('event', JSON.stringify(event));
     const bodyText = event.body;
-    console.log('body', bodyText);
     const parsedBody = JSON.parse(bodyText);
-    console.log('parsed body', parsedBody);
     const task = parsedBody.task;
-    console.log('task', task);
     const errors = validateCreateTask(task);
+
     if (errors) {
       console.error(errors);
-      return {
-        'statusCode': 422,
+      callback(null, {
+        'statusCode': 400,
+         'headers': headers,
          'body': {
-            'errors': errors
+            'errors': JSON.stringify(errors)
          }
-      };
+      });
+      return;
     }
 
     let response;
@@ -59,13 +59,16 @@ exports.handler = async (event, context) => {
         response = {
           'statusCode': 201,
           'headers': headers,
-          'body': 'CREATED'
+          'body': '{"result": "CREATED"}'
         };
+        callback(null, response);
     } catch (err) {
-        console.log(err);
-        return err;
+         response = {
+          'statusCode': 500,
+          'headers': headers,
+          'body': JSON.stringify(err)
+        };       
+        callback(null, response);
     }
-
-    return response;
 };
 

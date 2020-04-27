@@ -9,7 +9,7 @@ const NewTaskForm = (props: any) => {
     const hashHistory = props.history;
     return (
       <>
-        <h2>Add a task...</h2>
+        <h3>Add a task...</h3>
         <Formik
             initialValues = {{
                 description: '',
@@ -34,27 +34,27 @@ const NewTaskForm = (props: any) => {
                 })();
             }}
         >
-            <Form className="mui-form">
-                <div className="mui-textfield mui-textfield--float-label">
-                    <Field name="description" type="text"/>
+            <Form>
+                <div className="form-group">
                     <label htmlFor="description">Description</label>
+                    <Field name="description" className="form-control" type="text"/>
                     <ErrorMessage name="description" />
                 </div>
 
-                <div className="mui-textfield mui-textfield--float-label">
-                    <Field name="priority" type="text"/>
+                <div className="form-group">
                     <label htmlFor="priority">Priority (1-5)</label>
+                    <Field name="priority" className="form-control" type="text"/>
                     <ErrorMessage name="priority" />
                 </div>
 
                 {/* todo - date picker */}
-                <div className="mui-textfield mui-textfield--float-label">
-                    <Field name="dueDate" type="text" />
+                <div className="form-group">
                     <label htmlFor="dueDate">Due Date</label>
+                    <Field name="dueDate" className="form-control" type="date" />
                     <ErrorMessage name="dueDate" />
                 </div>
 
-                <button type="submit">Submit</button>
+                <button type="submit" className="btn btn-primary">Submit</button>
             </Form>
         </Formik>
       </>

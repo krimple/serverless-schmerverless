@@ -13,6 +13,7 @@ const TASKS_TABLE_NAME = process.env['SHARED_TASKS_TABLE_NAME'];
 exports.handler = async (event, context) => {
     console.log('Event', JSON.stringify(event));
     const headers = {
+        'content-type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
         'Access-Control-Allow-Headers': 'X-Forwarded-For,Content-Type,Authorization',
@@ -23,23 +24,23 @@ exports.handler = async (event, context) => {
     // because each bugfix is a deploy cycle to test the API Gateway
     // by default, I had to get very long-form in debugging my silly
     // errors
-    console.log('event', JSON.stringify(event));
     const bodyText = event.body;
-    console.log('body', bodyText);
     const parsedBody = JSON.parse(bodyText);
-    console.log('parsed body', parsedBody);
     const task = parsedBody.task;
-    console.log('task', task);
     const errors = validateUpdateTask(task);
+    // if we fail validation, return a 400 error to the client
     if (errors) {
       console.error(errors);
-      return {
-        'statusCode': 422,
-         'body': {
-            'errors': errors
-         }
-      };
+      return({
+        isBase64Encoded: false,
+        statusCode: 400,
+        headers: headers,
+        body: JSON.stringify(errors)
+      });
     }
+
+    // respond with validation error
+
 
     let response;
     try {
@@ -71,16 +72,21 @@ exports.handler = async (event, context) => {
 
         // NOTE - could also return updated REST value but we'll re-fetch the
         // entire set of tasks anyway
-        response = {
-          'statusCode': 200,
-          'headers': headers,
-          'body': 'OK'
-        };
+        return({
+          isBase64Encoded: false,
+          statusCode: 204,
+          headers: headers,
+          body: '{"result": "NO CONTENT"}'
+        });
+    // update fails
     } catch (err) {
         console.log(err);
-        return err;
+        return({
+          isBase64Encoded: false,
+          statusCode: 500,
+          headers: headers,
+          body: JSON.stringify(err)
+        });
     }
-
-    return response;
 };
 

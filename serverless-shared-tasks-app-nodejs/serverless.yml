@@ -114,6 +114,7 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+
 resources:
   Resources:
     ApiGatewayAuthorizer:
@@ -132,7 +133,6 @@ custom:
   stage: ${opt:stage, self:provider.stage}
   region: ${opt:region, 'us-east-1'}
 
-package:
   exclude:
     - aws-env/**
   include:

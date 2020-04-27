@@ -36,7 +36,7 @@ export async function updateSingleTask(apiName: string, task: Task) {
                     priority: task.priority,
                     dueDate: task.dueDate,
                     completed: task.completed,
-                    completedDate: task.completed ? new Date().toISOString() : ''
+                    completedDate: task.completed ? new Date().toLocaleDateString('en-US') : ''
                 }
             }
         });

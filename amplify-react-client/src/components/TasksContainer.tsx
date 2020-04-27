@@ -27,9 +27,9 @@ const TasksContainer = (props: any) => {
   )) : [];
 
   return (
-    <Container fluid={true}>
+    <Container>
       { tasks &&
-      <table className="mui-table">
+      <table className="table table-bordered table-striped">
           <thead>
           <tr key="thead">
               <th>ID</th>
