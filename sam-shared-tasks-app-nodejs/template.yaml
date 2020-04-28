@@ -49,7 +49,7 @@ Resources:
     Properties:
       # CodeUri: tasks-api/
       Role: !GetAtt LambdaDynamoAccessRole.Arn
-      Handler: tasks-api/add-task.handler
+      Handler: tasks-api/update-task.handler
       Runtime: nodejs12.x
       Events:
         AddTaskEvent:

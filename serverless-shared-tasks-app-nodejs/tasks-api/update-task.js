@@ -41,6 +41,29 @@ exports.handler = async (event, context) => {
 
     // respond with validation error
 
+    const expressionAttributeValues = {
+        ':priority': {'N': task.priority ? task.priority.toString() : '1'},
+        ':description': {'S': task.description},
+        ':dueDate': {'S': task.dueDate},
+        ':completed': {'BOOL': task.completed}
+    };
+
+    // only add completed date expression if the date is sent
+    if (task.completedDate) {
+        expressionAttributeValues[':completedDate'] = { 'S': task.completedDate };
+    }
+
+    let updateExpression = `
+              SET priority = :priority,
+                  description = :description,
+                  dueDate = :dueDate,
+                  completed = :completed
+    `;
+
+    // only add completed date update statement part if sent
+    if (task.completedDate) {
+        updateExpression += ', completedDate = :completedDate';
+    }
 
     let response;
     try {
@@ -51,21 +74,8 @@ exports.handler = async (event, context) => {
                 'taskId': { 'S': event.pathParameters.taskId }
             },
             // TODO - complete this
-            UpdateExpression:   `
-              SET priority = :priority,
-                  description = :description,
-                  dueDate = :dueDate,
-                  completed = :completed,
-                  completedDate = :completedDate
-            `,
-
-            ExpressionAttributeValues: {
-                ':priority': { 'N': task.priority ? task.priority.toString() : '1' },
-                ':description': { 'S': task.description },
-                ':dueDate': { 'S': task.dueDate },
-                ':completed': { 'BOOL': task.completed },
-                ':completedDate': { 'S': task.completedDate }
-            }
+            UpdateExpression:   updateExpression,
+            ExpressionAttributeValues: expressionAttributeValues
         };
 
         const result = await dynamoDB.updateItem(params).promise();

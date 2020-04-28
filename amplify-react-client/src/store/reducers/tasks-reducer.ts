@@ -57,11 +57,18 @@ export default function tasksReducer(
     case TaskActionTypes.TASK_ACTION_SWITCH_API:
       return { ...state, api: action.payload.api}
     case TaskActionTypes.TASK_ACTION_FETCH_SINGLE_TASK_PENDING:
-      return {...state, callPending: true};
+      return {...state, callPending: true, editedTask: undefined};
     case TaskActionTypes.TASK_ACTION_FETCH_SINGLE_TASK_SUCCESS:
       return {...state, callPending: false, editedTask: action.payload.task};
     case TaskActionTypes.TASK_ACTION_FETCH_SINGLE_TASK_FAIL:
       return {...state, callPending: false, editedTask: undefined, error: action.payload.error};
+    case TaskActionTypes.TASK_ACTION_UPDATE_SINGLE_TASK_PENDING:
+      return {...state, callPending: true, editedTask: undefined, error: undefined};
+    case TaskActionTypes.TASK_ACTION_UPDATE_SINGLE_TASK_FAIL:
+      return {...state, callPending: false, editedTask: undefined, error: action.payload.error};
+    case TaskActionTypes.TASK_ACTION_UPDATE_SINGLE_TASK_SUCCESS:
+      return { ...state, callPending: false, editedTask: undefined, error: undefined};
+
     default:
       return state;
   }
@@ -124,10 +131,15 @@ export const fetchSingleTaskActionCreator = (taskId: string) => {
 }
 
 export function addTaskActionCreator(task: Task) {
-  return async (dispatch: Dispatch, getState: () => any) => {
-   try {
 
+  return async (dispatch: Dispatch, getState: () => any) => {
+    dispatch({
+      type: TaskActionTypes.TASK_ACTION_CREATE_TASK_PENDING
+    });
+
+    try {
      const api = getState().tasksApi.api;
+     console.log(`API is ${api}`);
      await addTask(api, task);
      return dispatch({
        type: TaskActionTypes.TASK_ACTION_CREATE_TASK_SUCCESS

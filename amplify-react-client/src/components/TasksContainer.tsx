@@ -3,16 +3,16 @@ import { useDispatch } from 'react-redux';
 import { loadTasksActionCreator} from "../store/reducers/tasks-reducer";
 import { Container } from 'muicss/react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { Task } from '../models/task';
 
 const TasksContainer = (props: any) => {
   const dispatch = useDispatch();
+  const history = useHistory();
 
   useEffect(() => {
     dispatch(loadTasksActionCreator());
   }, [dispatch]);
-  console.log(`re-rendering ${JSON.stringify(props)}`);
   const tasks: Task[] = props.tasks;
 
   const taskTRs = tasks ? tasks.map((t: Task) => (
@@ -50,7 +50,6 @@ const TasksContainer = (props: any) => {
 }
 
 function mapStateToProps(reduxState: any) {
-  console.log(`state to props ${JSON.stringify(reduxState)}`)
   return {
     tasks: reduxState.tasksApi.tasks || []
   }

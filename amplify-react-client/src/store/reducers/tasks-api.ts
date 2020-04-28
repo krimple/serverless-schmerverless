@@ -26,16 +26,12 @@ export async function updateSingleTask(apiName: string, task: Task) {
         const user = await getUser();
         const userName = user['username'];
         const token = await getBearerToken();
-        return await API.put(apiName, `/tasks/${encodeURI(userName)}/${task.taskId}`, {
+        // split out the taskId - the payload doesn't want it but the URI expects it
+        const { taskId, ...taskRest } = task;
+        return await API.put(apiName, `/tasks/${encodeURI(userName)}/${taskId}`, {
             headers: {Authorization: token},
             body: {
-                task: {
-                    description: task.description,
-                    priority: task.priority,
-                    dueDate: task.dueDate,
-                    completed: task.completed,
-                    completedDate: task.completed ? new Date().toLocaleDateString('en-US') : ''
-                }
+                task: taskRest
             }
         });
     } catch (e) {

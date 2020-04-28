@@ -1,11 +1,10 @@
 import React, {useEffect} from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field, ErrorMessage  } from 'formik';
 import * as Yup from 'yup';
 import { withRouter } from 'react-router';
-import { connect } from 'react-redux';
-
 import {Task} from "../models/task";
-import {useDispatch} from "react-redux";
+import {connect, useDispatch} from "react-redux";
+import {useHistory} from 'react-router-dom';
 import {fetchSingleTaskActionCreator, updateSingleTaskActionCreator} from "../store/reducers/tasks-reducer";
 
 const UpdateTaskForm = (props: any) => {
@@ -18,7 +17,7 @@ const UpdateTaskForm = (props: any) => {
         })();
     }, [dispatch, props.match.params.id]);
 
-    const hashHistory = props.history;
+    const history = useHistory();
     return (
       <>
         { !task && <p>loading task...</p> }
@@ -38,7 +37,7 @@ const UpdateTaskForm = (props: any) => {
                 priority: Yup.number().min(1).max(5).required(),
                 dueDate: Yup.date().required(),
                 completed: Yup.bool().required(),
-                completedDate: Yup.date()
+                completedDate: Yup.date().nullable(true)
               })}
               onSubmit={(values) => {
                 (async () => {
@@ -47,8 +46,20 @@ const UpdateTaskForm = (props: any) => {
                         // this is messy; in Redux we piece it together with the user's
                         // username, plus the taskId here (which is not part of the form)
                         // but part of the route. For now, leaving this as a 'make better'
-                        await updateSingleTaskActionCreator({ ...values, taskId: props.match.params.id } as Task);
-                        hashHistory.push('/tasks');
+
+                        // TODO date picker or validation fix
+                        // also, stupidity with the date logic. I need to implement a date picker.
+                        // until I do, I have to pull out the completedDate if it isn't set, as it
+                        // is an empty field. Fix that or fix Formik passing that through and making
+                        // it valid.
+                      const payload = { ...values, taskId: props.match.params.id };
+                      if (values.completedDate === '') {
+                        console.log('REMOVING COMPLETED DATE')
+                        delete payload['completedDate'];
+                        console.dir(payload);
+                      }
+                      await dispatch(updateSingleTaskActionCreator(payload as Task));
+                      history.push('/tasks');
                     } catch (e) {
                         alert(`Update Task failed...`);
                         console.error(e);
@@ -84,7 +95,7 @@ const UpdateTaskForm = (props: any) => {
 
                   <div className="form-group">
                       <label htmlFor="completedDate">Completed Date</label>
-                      <Field name="completedDate" className="form-control" type="date"/>
+                      <Field name="completedDate" className="form-control" type="text"/>
                       <ErrorMessage name="completedDate"/>
                   </div>
 
