@@ -13,7 +13,7 @@ const TASKS_TABLE_NAME = process.env['SHARED_TASKS_TABLE_NAME'];
 exports.handler = async (event, context, callback) => {
     const headers = {
         'content-type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': 'http://localhost:3000',
         'Access-Control-Allow-Credentials': true,
         'Access-Control-Allow-Headers': 'X-Forwarded-For,Content-Type,Authorization',
         'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'

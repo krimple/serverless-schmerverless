@@ -2,7 +2,8 @@ module.exports = function cognitoSecurityPluginMacro(arc, cloudformation, stage)
     Object.keys(cloudformation.Resources).forEach(key => {
         const config = cloudformation.Resources[key];
         if (config.Type === 'AWS::Serverless::Function') {
-            config['Properties']['Environment']['Variables']['TASKS_TABLE_NAME'] = 'FOOBAR';
+            config['Properties']['Environment']['Variables']['TASKS_TABLE_NAME'] =
+              { 'Fn::ImportValue': 'cognito-stack-dev-SharedTasksTableName' };
         }
     });
 
@@ -39,7 +40,7 @@ function configureAPIGateway(cloudformation) {
                        }
                    }
                },
-               AddDefaultAuthorizerToCorsPreflight: 'False'
+               AddDefaultAuthorizerToCorsPreflight: false
            }
        }
 

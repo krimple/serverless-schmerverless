@@ -1,0 +1,16 @@
+{
+  "name": "architect-serverless-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@architect/utils": "^1.5.4",
+    "aws-sdk": "^2.665.0"
+  }
+}

@@ -8,7 +8,7 @@ import '@aws-amplify/ui/dist/style.css';
 import { Authenticator } from 'aws-amplify-react';
 import TasksContainer from './components/TasksContainer';
 import NewTaskForm from './components/NewTaskForm';
-import { switchApiActionCreator } from "./store/reducers/tasks-reducer";
+import {loadTasksActionCreator, switchApiActionCreator} from "./store/reducers/tasks-reducer";
 import UpdateTaskForm from "./components/UpdateTaskForm";
 import Theme from './Amplify-UI-Theme-Sample';
 
@@ -24,8 +24,11 @@ function App({ history, store }) {
               <Link to="/tasks">Tasks</Link> |
             <Link to="/tasks/new">Add a task...</Link>
               <select onChange={(e) => {
-                console.log(e.target.value);
-                store.dispatch(switchApiActionCreator(e.target.value));
+                (async () => {
+                  console.log(e.target.value);
+                  await store.dispatch(switchApiActionCreator(e.target.value));
+                })();
+
               }}>
                 <option defaultChecked={true} value='serverless'>Serverless Framework</option>
                 <option value='sam'>AWS SAM</option>

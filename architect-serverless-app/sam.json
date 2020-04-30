@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
   "Transform": "AWS::Serverless-2016-10-31",
-  "Description": "Exported by architect/package@1.3.2 on 2020-04-27T21:12:47.252Z",
+  "Description": "Exported by architect/package@1.3.2 on 2020-04-30T15:10:30.455Z",
   "Resources": {
     "ArchitectServerlessApp": {
       "Type": "AWS::Serverless::Api",
@@ -39,7 +39,29 @@
                 }
               }
             },
-            "/tasks": {
+            "/tasks/{taskOwner}": {
+              "options": {
+                "responses": {
+                  "200": {
+                    "description": "200 response"
+                  }
+                },
+                "x-amazon-apigateway-integration": {
+                  "uri": {
+                    "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OptionsTasksTaskOwner.Arn}/invocations"
+                  },
+                  "responses": {
+                    "default": {
+                      "statusCode": "200",
+                      "contentHandling": "CONVERT_TO_TEXT"
+                    }
+                  },
+                  "passthroughBehavior": "when_no_match",
+                  "httpMethod": "POST",
+                  "contentHandling": "CONVERT_TO_TEXT",
+                  "type": "aws_proxy"
+                }
+              },
               "get": {
                 "responses": {
                   "200": {
@@ -48,7 +70,7 @@
                 },
                 "x-amazon-apigateway-integration": {
                   "uri": {
-                    "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetTasks.Arn}/invocations"
+                    "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetTasksTaskOwner.Arn}/invocations"
                   },
                   "responses": {
                     "default": {
@@ -70,7 +92,7 @@
                 },
                 "x-amazon-apigateway-integration": {
                   "uri": {
-                    "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostTasks.Arn}/invocations"
+                    "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostTasksTaskOwner.Arn}/invocations"
                   },
                   "responses": {
                     "default": {
@@ -86,6 +108,50 @@
               }
             },
             "/tasks/{taskOwner}/{taskId}": {
+              "options": {
+                "responses": {
+                  "200": {
+                    "description": "200 response"
+                  }
+                },
+                "x-amazon-apigateway-integration": {
+                  "uri": {
+                    "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OptionsTasksTaskOwnerTaskId.Arn}/invocations"
+                  },
+                  "responses": {
+                    "default": {
+                      "statusCode": "200",
+                      "contentHandling": "CONVERT_TO_TEXT"
+                    }
+                  },
+                  "passthroughBehavior": "when_no_match",
+                  "httpMethod": "POST",
+                  "contentHandling": "CONVERT_TO_TEXT",
+                  "type": "aws_proxy"
+                }
+              },
+              "get": {
+                "responses": {
+                  "200": {
+                    "description": "200 response"
+                  }
+                },
+                "x-amazon-apigateway-integration": {
+                  "uri": {
+                    "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetTasksTaskOwnerTaskId.Arn}/invocations"
+                  },
+                  "responses": {
+                    "default": {
+                      "statusCode": "200",
+                      "contentHandling": "CONVERT_TO_TEXT"
+                    }
+                  },
+                  "passthroughBehavior": "when_no_match",
+                  "httpMethod": "POST",
+                  "contentHandling": "CONVERT_TO_TEXT",
+                  "type": "aws_proxy"
+                }
+              },
               "put": {
                 "responses": {
                   "200": {
@@ -204,7 +270,7 @@
               }
             }
           },
-          "AddDefaultAuthorizerToCorsPreflight": "False"
+          "AddDefaultAuthorizerToCorsPreflight": false
         }
       }
     },
@@ -228,7 +294,9 @@
             "ARC_HTTP": "aws_proxy",
             "NODE_ENV": "staging",
             "SESSION_TABLE_NAME": "jwe",
-            "TASKS_TABLE_NAME": "FOOBAR"
+            "TASKS_TABLE_NAME": {
+              "Fn::ImportValue": "cognito-stack-dev-SharedTasksTableName"
+            }
           }
         },
         "Role": {
@@ -255,11 +323,11 @@
         }
       }
     },
-    "GetTasks": {
+    "OptionsTasksTaskOwner": {
       "Type": "AWS::Serverless::Function",
       "Properties": {
         "Handler": "index.handler",
-        "CodeUri": "./src/http/get-tasks",
+        "CodeUri": "./src/http/options-tasks-000taskOwner",
         "Runtime": "nodejs12.x",
         "MemorySize": 1152,
         "Timeout": 5,
@@ -275,7 +343,9 @@
             "ARC_HTTP": "aws_proxy",
             "NODE_ENV": "staging",
             "SESSION_TABLE_NAME": "jwe",
-            "TASKS_TABLE_NAME": "FOOBAR"
+            "TASKS_TABLE_NAME": {
+              "Fn::ImportValue": "cognito-stack-dev-SharedTasksTableName"
+            }
           }
         },
         "Role": {
@@ -289,10 +359,108 @@
           ]
         },
         "Events": {
-          "GetTasksEvent": {
+          "OptionsTasksTaskOwnerEvent": {
             "Type": "Api",
             "Properties": {
-              "Path": "/tasks",
+              "Path": "/tasks/{taskOwner}",
+              "Method": "OPTIONS",
+              "RestApiId": {
+                "Ref": "ArchitectServerlessApp"
+              }
+            }
+          }
+        }
+      }
+    },
+    "OptionsTasksTaskOwnerTaskId": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "index.handler",
+        "CodeUri": "./src/http/options-tasks-000taskOwner-000taskId",
+        "Runtime": "nodejs12.x",
+        "MemorySize": 1152,
+        "Timeout": 5,
+        "Environment": {
+          "Variables": {
+            "ARC_ROLE": {
+              "Ref": "Role"
+            },
+            "ARC_CLOUDFORMATION": {
+              "Ref": "AWS::StackName"
+            },
+            "ARC_APP_NAME": "architect-serverless-app",
+            "ARC_HTTP": "aws_proxy",
+            "NODE_ENV": "staging",
+            "SESSION_TABLE_NAME": "jwe",
+            "TASKS_TABLE_NAME": {
+              "Fn::ImportValue": "cognito-stack-dev-SharedTasksTableName"
+            }
+          }
+        },
+        "Role": {
+          "Fn::Sub": [
+            "arn:aws:iam::${AWS::AccountId}:role/${roleName}",
+            {
+              "roleName": {
+                "Ref": "Role"
+              }
+            }
+          ]
+        },
+        "Events": {
+          "OptionsTasksTaskOwnerTaskIdEvent": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/tasks/{taskOwner}/{taskId}",
+              "Method": "OPTIONS",
+              "RestApiId": {
+                "Ref": "ArchitectServerlessApp"
+              }
+            }
+          }
+        }
+      }
+    },
+    "GetTasksTaskOwner": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "index.handler",
+        "CodeUri": "./src/http/get-tasks-000taskOwner",
+        "Runtime": "nodejs12.x",
+        "MemorySize": 1152,
+        "Timeout": 5,
+        "Environment": {
+          "Variables": {
+            "ARC_ROLE": {
+              "Ref": "Role"
+            },
+            "ARC_CLOUDFORMATION": {
+              "Ref": "AWS::StackName"
+            },
+            "ARC_APP_NAME": "architect-serverless-app",
+            "ARC_HTTP": "aws_proxy",
+            "NODE_ENV": "staging",
+            "SESSION_TABLE_NAME": "jwe",
+            "TASKS_TABLE_NAME": {
+              "Fn::ImportValue": "cognito-stack-dev-SharedTasksTableName"
+            }
+          }
+        },
+        "Role": {
+          "Fn::Sub": [
+            "arn:aws:iam::${AWS::AccountId}:role/${roleName}",
+            {
+              "roleName": {
+                "Ref": "Role"
+              }
+            }
+          ]
+        },
+        "Events": {
+          "GetTasksTaskOwnerEvent": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/tasks/{taskOwner}",
               "Method": "GET",
               "RestApiId": {
                 "Ref": "ArchitectServerlessApp"
@@ -302,11 +470,11 @@
         }
       }
     },
-    "PostTasks": {
+    "GetTasksTaskOwnerTaskId": {
       "Type": "AWS::Serverless::Function",
       "Properties": {
         "Handler": "index.handler",
-        "CodeUri": "./src/http/post-tasks",
+        "CodeUri": "./src/http/get-tasks-000taskOwner-000taskId",
         "Runtime": "nodejs12.x",
         "MemorySize": 1152,
         "Timeout": 5,
@@ -322,7 +490,9 @@
             "ARC_HTTP": "aws_proxy",
             "NODE_ENV": "staging",
             "SESSION_TABLE_NAME": "jwe",
-            "TASKS_TABLE_NAME": "FOOBAR"
+            "TASKS_TABLE_NAME": {
+              "Fn::ImportValue": "cognito-stack-dev-SharedTasksTableName"
+            }
           }
         },
         "Role": {
@@ -336,10 +506,59 @@
           ]
         },
         "Events": {
-          "PostTasksEvent": {
+          "GetTasksTaskOwnerTaskIdEvent": {
             "Type": "Api",
             "Properties": {
-              "Path": "/tasks",
+              "Path": "/tasks/{taskOwner}/{taskId}",
+              "Method": "GET",
+              "RestApiId": {
+                "Ref": "ArchitectServerlessApp"
+              }
+            }
+          }
+        }
+      }
+    },
+    "PostTasksTaskOwner": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "index.handler",
+        "CodeUri": "./src/http/post-tasks-000taskOwner",
+        "Runtime": "nodejs12.x",
+        "MemorySize": 1152,
+        "Timeout": 5,
+        "Environment": {
+          "Variables": {
+            "ARC_ROLE": {
+              "Ref": "Role"
+            },
+            "ARC_CLOUDFORMATION": {
+              "Ref": "AWS::StackName"
+            },
+            "ARC_APP_NAME": "architect-serverless-app",
+            "ARC_HTTP": "aws_proxy",
+            "NODE_ENV": "staging",
+            "SESSION_TABLE_NAME": "jwe",
+            "TASKS_TABLE_NAME": {
+              "Fn::ImportValue": "cognito-stack-dev-SharedTasksTableName"
+            }
+          }
+        },
+        "Role": {
+          "Fn::Sub": [
+            "arn:aws:iam::${AWS::AccountId}:role/${roleName}",
+            {
+              "roleName": {
+                "Ref": "Role"
+              }
+            }
+          ]
+        },
+        "Events": {
+          "PostTasksTaskOwnerEvent": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/tasks/{taskOwner}",
               "Method": "POST",
               "RestApiId": {
                 "Ref": "ArchitectServerlessApp"
@@ -369,7 +588,9 @@
             "ARC_HTTP": "aws_proxy",
             "NODE_ENV": "staging",
             "SESSION_TABLE_NAME": "jwe",
-            "TASKS_TABLE_NAME": "FOOBAR"
+            "TASKS_TABLE_NAME": {
+              "Fn::ImportValue": "cognito-stack-dev-SharedTasksTableName"
+            }
           }
         },
         "Role": {

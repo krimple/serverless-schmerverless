@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Exported by architect/package@1.3.2 on 2020-04-27T21:12:47.252Z
+Description: Exported by architect/package@1.3.2 on 2020-04-30T15:10:30.455Z
 Resources:
   ArchitectServerlessApp:
     Type: AWS::Serverless::Api
@@ -28,14 +28,29 @@ Resources:
                 httpMethod: POST
                 contentHandling: CONVERT_TO_TEXT
                 type: aws_proxy
-          /tasks:
+          /tasks/{taskOwner}:
+            options:
+              responses:
+                '200':
+                  description: 200 response
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OptionsTasksTaskOwner.Arn}/invocations
+                responses:
+                  default:
+                    statusCode: '200'
+                    contentHandling: CONVERT_TO_TEXT
+                passthroughBehavior: when_no_match
+                httpMethod: POST
+                contentHandling: CONVERT_TO_TEXT
+                type: aws_proxy
             get:
               responses:
                 '200':
                   description: 200 response
               x-amazon-apigateway-integration:
                 uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetTasks.Arn}/invocations
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetTasksTaskOwner.Arn}/invocations
                 responses:
                   default:
                     statusCode: '200'
@@ -50,7 +65,7 @@ Resources:
                   description: 200 response
               x-amazon-apigateway-integration:
                 uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostTasks.Arn}/invocations
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostTasksTaskOwner.Arn}/invocations
                 responses:
                   default:
                     statusCode: '200'
@@ -60,6 +75,36 @@ Resources:
                 contentHandling: CONVERT_TO_TEXT
                 type: aws_proxy
           /tasks/{taskOwner}/{taskId}:
+            options:
+              responses:
+                '200':
+                  description: 200 response
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OptionsTasksTaskOwnerTaskId.Arn}/invocations
+                responses:
+                  default:
+                    statusCode: '200'
+                    contentHandling: CONVERT_TO_TEXT
+                passthroughBehavior: when_no_match
+                httpMethod: POST
+                contentHandling: CONVERT_TO_TEXT
+                type: aws_proxy
+            get:
+              responses:
+                '200':
+                  description: 200 response
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetTasksTaskOwnerTaskId.Arn}/invocations
+                responses:
+                  default:
+                    statusCode: '200'
+                    contentHandling: CONVERT_TO_TEXT
+                passthroughBehavior: when_no_match
+                httpMethod: POST
+                contentHandling: CONVERT_TO_TEXT
+                type: aws_proxy
             put:
               responses:
                 '200':
@@ -136,12 +181,12 @@ Resources:
           Authorizer:
             UserPoolArn:
               Fn::ImportValue: cognito-stack-dev-UserPoolArn
-        AddDefaultAuthorizerToCorsPreflight: 'False'
+        AddDefaultAuthorizerToCorsPreflight: false
   GetIndex:
     Type: AWS::Serverless::Function
     Properties:
       Handler: index.handler
-      CodeUri: s3://architect-serverless-app-cfn-deployments-9f2f3/2abef2a80de289cdf9c57aaa09104e39
+      CodeUri: s3://architect-serverless-app-cfn-deployments-9f2f3/3fb976ed5060081de068439828be92f5
       Runtime: nodejs12.x
       MemorySize: 1152
       Timeout: 5
@@ -155,7 +200,8 @@ Resources:
           ARC_HTTP: aws_proxy
           NODE_ENV: staging
           SESSION_TABLE_NAME: jwe
-          TASKS_TABLE_NAME: FOOBAR
+          TASKS_TABLE_NAME:
+            Fn::ImportValue: cognito-stack-dev-SharedTasksTableName
       Role:
         Fn::Sub:
         - arn:aws:iam::${AWS::AccountId}:role/${roleName}
@@ -169,11 +215,11 @@ Resources:
             Method: GET
             RestApiId:
               Ref: ArchitectServerlessApp
-  GetTasks:
+  OptionsTasksTaskOwner:
     Type: AWS::Serverless::Function
     Properties:
       Handler: index.handler
-      CodeUri: s3://architect-serverless-app-cfn-deployments-9f2f3/238f40daa1150a687f3be40b195b7fe1
+      CodeUri: s3://architect-serverless-app-cfn-deployments-9f2f3/2e270a4a911ac68caae85fdf6ab7f30f
       Runtime: nodejs12.x
       MemorySize: 1152
       Timeout: 5
@@ -187,21 +233,121 @@ Resources:
           ARC_HTTP: aws_proxy
           NODE_ENV: staging
           SESSION_TABLE_NAME: jwe
-          TASKS_TABLE_NAME: FOOBAR
+          TASKS_TABLE_NAME:
+            Fn::ImportValue: cognito-stack-dev-SharedTasksTableName
       Role:
         Fn::Sub:
         - arn:aws:iam::${AWS::AccountId}:role/${roleName}
         - roleName:
             Ref: Role
       Events:
-        GetTasksEvent:
+        OptionsTasksTaskOwnerEvent:
           Type: Api
           Properties:
-            Path: /tasks
+            Path: /tasks/{taskOwner}
+            Method: OPTIONS
+            RestApiId:
+              Ref: ArchitectServerlessApp
+  OptionsTasksTaskOwnerTaskId:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      CodeUri: s3://architect-serverless-app-cfn-deployments-9f2f3/d317da6f8642f1a1d307cc1ffa44c3f2
+      Runtime: nodejs12.x
+      MemorySize: 1152
+      Timeout: 5
+      Environment:
+        Variables:
+          ARC_ROLE:
+            Ref: Role
+          ARC_CLOUDFORMATION:
+            Ref: AWS::StackName
+          ARC_APP_NAME: architect-serverless-app
+          ARC_HTTP: aws_proxy
+          NODE_ENV: staging
+          SESSION_TABLE_NAME: jwe
+          TASKS_TABLE_NAME:
+            Fn::ImportValue: cognito-stack-dev-SharedTasksTableName
+      Role:
+        Fn::Sub:
+        - arn:aws:iam::${AWS::AccountId}:role/${roleName}
+        - roleName:
+            Ref: Role
+      Events:
+        OptionsTasksTaskOwnerTaskIdEvent:
+          Type: Api
+          Properties:
+            Path: /tasks/{taskOwner}/{taskId}
+            Method: OPTIONS
+            RestApiId:
+              Ref: ArchitectServerlessApp
+  GetTasksTaskOwner:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      CodeUri: s3://architect-serverless-app-cfn-deployments-9f2f3/988c67a5b4aa465a8d1245eec6401728
+      Runtime: nodejs12.x
+      MemorySize: 1152
+      Timeout: 5
+      Environment:
+        Variables:
+          ARC_ROLE:
+            Ref: Role
+          ARC_CLOUDFORMATION:
+            Ref: AWS::StackName
+          ARC_APP_NAME: architect-serverless-app
+          ARC_HTTP: aws_proxy
+          NODE_ENV: staging
+          SESSION_TABLE_NAME: jwe
+          TASKS_TABLE_NAME:
+            Fn::ImportValue: cognito-stack-dev-SharedTasksTableName
+      Role:
+        Fn::Sub:
+        - arn:aws:iam::${AWS::AccountId}:role/${roleName}
+        - roleName:
+            Ref: Role
+      Events:
+        GetTasksTaskOwnerEvent:
+          Type: Api
+          Properties:
+            Path: /tasks/{taskOwner}
             Method: GET
             RestApiId:
               Ref: ArchitectServerlessApp
-  PostTasks:
+  GetTasksTaskOwnerTaskId:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      CodeUri: s3://architect-serverless-app-cfn-deployments-9f2f3/2de65371f564c761b0aa69f4b41e4da3
+      Runtime: nodejs12.x
+      MemorySize: 1152
+      Timeout: 5
+      Environment:
+        Variables:
+          ARC_ROLE:
+            Ref: Role
+          ARC_CLOUDFORMATION:
+            Ref: AWS::StackName
+          ARC_APP_NAME: architect-serverless-app
+          ARC_HTTP: aws_proxy
+          NODE_ENV: staging
+          SESSION_TABLE_NAME: jwe
+          TASKS_TABLE_NAME:
+            Fn::ImportValue: cognito-stack-dev-SharedTasksTableName
+      Role:
+        Fn::Sub:
+        - arn:aws:iam::${AWS::AccountId}:role/${roleName}
+        - roleName:
+            Ref: Role
+      Events:
+        GetTasksTaskOwnerTaskIdEvent:
+          Type: Api
+          Properties:
+            Path: /tasks/{taskOwner}/{taskId}
+            Method: GET
+            RestApiId:
+              Ref: ArchitectServerlessApp
+  PostTasksTaskOwner:
     Type: AWS::Serverless::Function
     Properties:
       Handler: index.handler
@@ -219,17 +365,18 @@ Resources:
           ARC_HTTP: aws_proxy
           NODE_ENV: staging
           SESSION_TABLE_NAME: jwe
-          TASKS_TABLE_NAME: FOOBAR
+          TASKS_TABLE_NAME:
+            Fn::ImportValue: cognito-stack-dev-SharedTasksTableName
       Role:
         Fn::Sub:
         - arn:aws:iam::${AWS::AccountId}:role/${roleName}
         - roleName:
             Ref: Role
       Events:
-        PostTasksEvent:
+        PostTasksTaskOwnerEvent:
           Type: Api
           Properties:
-            Path: /tasks
+            Path: /tasks/{taskOwner}
             Method: POST
             RestApiId:
               Ref: ArchitectServerlessApp
@@ -251,7 +398,8 @@ Resources:
           ARC_HTTP: aws_proxy
           NODE_ENV: staging
           SESSION_TABLE_NAME: jwe
-          TASKS_TABLE_NAME: FOOBAR
+          TASKS_TABLE_NAME:
+            Fn::ImportValue: cognito-stack-dev-SharedTasksTableName
       Role:
         Fn::Sub:
         - arn:aws:iam::${AWS::AccountId}:role/${roleName}

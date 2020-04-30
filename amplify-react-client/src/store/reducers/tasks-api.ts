@@ -49,17 +49,28 @@ export async function getTasks(apiName:string):Promise<Task[]> {
             headers: { Authorization: token }
         });
 
-        // NOTE - the data coming back from DynamoDB is not typed,
-        // it's a bag of properties. So we're doing a domain mapping process
-        // here.
-        return response.tasks.map((t: any) => ({
-           taskId: t['taskId']['S'],
-           taskOwner: t['taskOwner']['S'],
-           description: t['description']['S'],
-           priority: t['priority']['N'],
-           dueDate: t['dueDate']['S'],
-           completed: t['completed']['BOOL']
-        }));
+        if (apiName === 'architect') {
+            // 'tis easy, it returns the data as regular properties
+            return response.tasks;
+        } else {
+            // TODO - fix the responses to be good little pieces of data like
+            // architect returns...
+            // The API I used for the Serverless and SAM returns Dynamo results
+            // perhaps we could switch to the one like used by Architect - higher level
+            // APIs.
+
+            // NOTE - the data coming back from DynamoDB is not typed,
+            // it's a bag of properties. So we're doing a domain mapping process
+            // here.
+            return response.tasks.map((t: any) => ({
+                taskId: t['taskId']['S'],
+                taskOwner: t['taskOwner']['S'],
+                description: t['description']['S'],
+                priority: t['priority']['N'],
+                dueDate: t['dueDate']['S'],
+                completed: t['completed']['BOOL']
+            }));
+        }
     } catch (e) {
         console.log('failed', e);
         throw e;
