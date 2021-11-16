@@ -11,6 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "@architect/utils": "^1.5.4",
-    "aws-sdk": "^2.665.0"
+    "aws-sdk": "^2.814.0"
   }
 }
