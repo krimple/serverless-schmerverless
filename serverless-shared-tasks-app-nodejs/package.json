@@ -8,7 +8,7 @@
     "node-uuid": "^1.4.8"
   },
   "devDependencies": {
-    "serverless": "^1.67.3",
+    "serverless": "^3.25.1",
     "serverless-offline": "^6.1.4",
     "serverless-plugin-tracing": "^2.0.0"
   },
